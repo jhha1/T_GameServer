@@ -10,7 +10,7 @@ const cache = require("../database/cache");
 const initializer = require('../common/initialize');
 const response = require('../utils/response');
 
-const SERVER_PORT = 8886;
+const SERVER_PORT = 8887;
 
 // worker process
 const initializeProcess = async() => {

@@ -1,5 +1,5 @@
 const LoginService = require('../services/LoginService');
-const msg = require("../protocol/GF_ResProtocol_1");
+const msg = require("../protocol/T_ResProtocol_1");
 
 exports.UserLogin = async (req, res, cb) => {
     try {
@@ -7,7 +7,7 @@ exports.UserLogin = async (req, res, cb) => {
         
         let result = await LoginObject.getLoginData();
 
-        let MessageObj = new msg.UserLogin(result.User, result.ItemEquip, result.ItemStackable, result.ItemFloatingPoint);
+        let MessageObj = new msg.UserLogin(result.User, result.ItemStackable);
 
         return MessageObj;
 

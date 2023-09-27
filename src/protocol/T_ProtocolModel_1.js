@@ -8,13 +8,22 @@
 // </auto-generated> 
 //------------------------------------------------------------------------------
 
-class AccountLogin {
-  constructor(platform_type, platform_id) {
-     this.platform_type = platform_type;
-     this.platform_id = platform_id;
-  }
-}
+class User {
+  constructor() {
+     this.user_id = ""
+     this.nickname = ""
+     this.is_leave = 0;
+     this.last_login_dt = 0;
+     this.created_dt = 0;
+}};
 
-class UserLogin {
-}
+class ItemStackable {
+  constructor() {
+     this.item_id = 0;
+     this.count = 0;
+}};
 
+module.exports = {
+  User,
+  ItemStackable,
+}

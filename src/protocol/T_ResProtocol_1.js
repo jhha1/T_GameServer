@@ -19,16 +19,13 @@ class AccountLogin {
 }
 
 class UserLogin {
-  constructor(user, item_floating_point, item_stackable, item_equip) {
+  constructor(user, item_stackable) {
      this.user = user;
-     this.item_floating_point = item_floating_point;
      this.item_stackable = item_stackable;
-     this.item_equip = item_equip;
   }
 }
 
-
 module.exports = {
-    AccountLogin,
-    UserLogin
+  AccountLogin,
+  UserLogin,
 }

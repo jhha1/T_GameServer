@@ -1,7 +1,7 @@
 const AccountService = require('../services/AccountService');
-const UserService = require("../services/user/UserService");
+const UserService = require("../services/UserService");
 const session = require("../database/session");
-const msg = require("../protocol/GF_ResProtocol_1");
+const msg = require("../protocol/T_ResProtocol_1");
 
 exports.AccountLogin = async (req, res, cb) => {
     try {
@@ -14,9 +14,9 @@ exports.AccountLogin = async (req, res, cb) => {
             // 계정
             const { shardId, newUserId, newAccountQuery } = await AccountServiceObj.createAccountQuery();
             // 유저
-            const { newUserQuery, cacheData } = new UserService(req).createUser(shardId, newUserId);
+            const newUserQuery = new UserService(req).createUser(shardId, newUserId);
             // 한 트랙잭션으로 계정,유저처리.
-            AccountRow = await AccountServiceObj.createAccountAndUser(shardId, newAccountQuery, newUserQuery, cacheData);
+            AccountRow = await AccountServiceObj.createAccountAndUser(shardId, newAccountQuery, newUserQuery);
         }
         AccountRow = AccountRow[0];
 

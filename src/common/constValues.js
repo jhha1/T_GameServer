@@ -31,15 +31,13 @@ const constValues = {
     Item: {
         Type: {
             None: 0,
-            FloatingPoint: 100001,
             Stackable: 100000,
-            Equip: 200000,
+            Emoji: 200000,
         },
         TypeName: {
             None: "None",
-            FloatingPoint: "FloatingPoint",
             Stackable: "Stackable",
-            Equip: "Equip",
+            Emoji: "Emoji",
         },
         Stackable: {
             Gold: 100001,

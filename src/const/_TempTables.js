@@ -145,6 +145,8 @@ module.exports = {
 
 
 /*
+create database Auth character set utf8mb4 COLLATE utf8mb4_bin;
+
 CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `shard_id` int NOT NULL,

@@ -123,7 +123,7 @@ class Gacha {
         const payItemCount = (this.gachaCount === this.C_Gacha.gacha_count_1)? this.C_Gacha.pay_amount_1 : this.C_Gacha.pay_amount_2;
         const decrItemList = [{id:this.C_Gacha.pay_item_id, count:payItemCount}];
 
-        this.ItemService.calculateDecrease(decrItemList);
+        this.ItemService.decreaseMulti(decrItemList);
     }
 
     pick(random, candidate) {
@@ -222,7 +222,7 @@ class ItemGacha extends Gacha {
     }
 
     #calculateReward() {
-        this.ItemService.calculateIncrease(super.pickedList);
+        this.ItemService.increaseMulti(super.pickedList);
     }
 
     async #save() {
@@ -233,9 +233,6 @@ class ItemGacha extends Gacha {
 
         if (queries.length > 0) {
             await db.execute(this.shardId, queries);
-
-            await this.ItemService.saveCacheOnly();
-            await this.GachaService.saveCacheOnly();
         }
     }
 

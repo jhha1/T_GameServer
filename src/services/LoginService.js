@@ -1,34 +1,32 @@
-const UserRepository = require("./user/UserRepository");
-const ItemRepository = require("./item/ItemRepository");
-const ConstValues = require("../common/constValues")
+const UserService = require("./UserService");
+const ItemService = require("./item/ItemService");
+const { Item } = require("../common/constValues")
 const log = require("../utils/logger");
 
 class LoginService {
-    #UserRepositoryObject;
-    #ItemRepositoryObject;
+    #ItemServiceObject;
+    #UserServiceObject;
     constructor(req) {
         this.req = req;
         this.userId = req.session.userId;
         this.shardId = req.session.shardId;
 
-        this.#UserRepositoryObject = new UserRepository(req);
-        this.#ItemRepositoryObject = new ItemRepository(req);
+        this.#ItemServiceObject = new ItemService(req);
+        this.#UserServiceObject = new UserService(req);
     }
     async getLoginData() {
         try {
-            const haveUser = await this.#UserRepositoryObject.getUser();
+            const haveUser = await this.#UserServiceObject.getUser();
             if (haveUser.length === 0) {
                 log.error(this.req, `NoExistUser. userId:${this.userId}`);
                 throw 999999;
             }
 
-            const haveItemList = await this.#ItemRepositoryObject.getAll();
+            const haveItemList = await this.#ItemServiceObject.getAll();
 
             return {
                 User:haveUser,
-                ItemEquip:haveItemList[ConstValues.Item.Type.Equip],
-                ItemStackable:haveItemList[ConstValues.Item.Type.Stackable],
-                ItemFloatingPoint:haveItemList[ConstValues.Item.Type.FloatingPoint]
+                ItemStackable:haveItemList[Item.Type.Stackable],
             };
         }
         catch (err) {

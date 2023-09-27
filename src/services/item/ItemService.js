@@ -1,50 +1,59 @@
-const ItemEquip = require('./ItemEquip');
 const ItemStackable = require("./ItemStackable");
-const itemRepository = require("./ItemRepository");
-const ItemType = require("../../common/constValues").Item.Type;
+const Queries = require("../../queries/mapper");
+const log = require("../../utils/logger");
+const db = require("../../database/db");
+const { Item } = require("../../common/constValues");
 
 class ItemService {
     #req;
+    #userId;
+    #shardId;
     #itemStackableObject;
-    #itemEquipObject;
-    #itemRepositoryObject;
 
     constructor(req) {
         this.#req = req;
-        this.#itemRepositoryObject = new itemRepository(req);
-        this.#itemStackableObject = new ItemStackable(req, this.#itemRepositoryObject);
-        this.#itemEquipObject = new ItemEquip(req, this.#itemRepositoryObject);
+        this.#userId = req.session.userId;
+        this.#shardId = req.session.shardId;
+        this.#itemStackableObject = new ItemStackable(req);
+    }
+
+    async getStackable() {
+        return await this.#itemStackableObject.get();
     }
 
     async getAll() {
-        return this.#itemRepositoryObject.getAll();
+        let queries = [
+            ["ItemStackable", Queries.ItemStackable.select, [this.#userId]]
+        ];
+
+        let { ItemStackable } = await db.select(this.#shardId, queries);
+
+        this.#itemStackableObject.set(ItemStackable);
+
+        const result = {};
+        result[Item.Type.Stackable] = ItemStackable;
+
+        return result;
     }
 
-    async saveCacheOnly() {
-        await this.#itemStackableObject.setCacheOnly();
-        await this.#itemEquipObject.setCacheOnly();
-    }
-
-    calculateIncrease(incrItemList) {
+    increaseStackable(incrItemList) {
         this.#itemStackableObject.incr(incrItemList);
-        this.#itemEquipObject.incr(incrItemList);
     }
 
-    calculateDecrease(decrItemList) {
+    decreaseStackable(incrItemList) {
+        this.#itemStackableObject.decr(incrItemList);
+    }
+
+    increaseMulti(incrItemList) {
+        this.#itemStackableObject.incr(incrItemList);
+    }
+
+    decreaseMulti(decrItemList) {
         this.#itemStackableObject.decr(decrItemList);
-        this.#itemEquipObject.decr(decrItemList);
     }
 
     get getQueries() {
-        return [...this.#itemStackableObject.getQueries, ...this.#itemEquipObject.getQueries];
-    }
-
-    get Stackable() {
-        return this.#itemStackableObject;
-    }
-
-    get Equip() {
-        return this.#itemEquipObject;
+        return [...this.#itemStackableObject.getQueries];
     }
 }
 

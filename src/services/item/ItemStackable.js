@@ -1,23 +1,18 @@
 const Queries = require('../../queries/mapper');
 const Item = require("./Item");
-const ItemType = require("../../common/constValues").Item.Type;
 const util = require("../../utils/util");
 const log = require("../../utils/logger");
+const db = require("../../database/db");
 
 class ItemStackable extends Item {
-    #itemRepositoryObject;
     #itemStackableRows;
     #executeQueries;
-    #updateCashValues;
 
-    constructor(req, itemRepositoryObject) {
+    constructor(req) {
         super(req);
-
-        this.#itemRepositoryObject = itemRepositoryObject;
 
         this.#itemStackableRows = null;
         this.#executeQueries = [];
-        this.#updateCashValues = [];
     }
 
     isEmpty() {
@@ -30,7 +25,13 @@ class ItemStackable extends Item {
 
     async get(itemIdList=null) {
         if (this.isEmpty()) {
-            this.#itemStackableRows = await this.#itemRepositoryObject.gatAllByItemTypes(ItemType.Stackable);
+            let queries = [
+                ["ItemStackable", Queries.ItemStackable.select, [this.userId]]
+            ];
+
+            let { ItemStackable } = await db.select(this.shardId, queries);
+
+            this.#itemStackableRows = ItemStackable;
         }
 
         if (!itemIdList) {
@@ -45,8 +46,8 @@ class ItemStackable extends Item {
     }
 
 
-    async setCacheOnly() {
-        await this.#itemRepositoryObject.mSetCacheOnly(ItemType.Stackable, this.#updateCashValues);
+    async set(dbRows) {
+        this.#itemStackableRows = dbRows;
     }
 
     incr(incrItemList) {
@@ -56,8 +57,6 @@ class ItemStackable extends Item {
             let found = this.#itemStackableRows.findIndex((x) => x.item_id === incr.id);
             if (found === -1) {
                 this.#executeQueries.push([Queries.ItemStackable.insert, [this.userId, incr.id, incr.count]]);
-                this.#updateCashValues.push({user_id:this.userId, item_id:incr.id, count:incr.count});
-
                 this.#itemStackableRows.push({user_id:this.userId, item_id:incr.id, count:incr.count});
             }
             else {
@@ -65,7 +64,6 @@ class ItemStackable extends Item {
                 item.count += incr.count;
 
                 this.#executeQueries.push([Queries.ItemStackable.update, [item.count, this.userId, incr.id]]);
-                this.#updateCashValues.push({user_id:this.userId, item_id:incr.id, count:item.count});
 
                 this.#itemStackableRows[found].count = item.count;
             }
@@ -91,7 +89,6 @@ class ItemStackable extends Item {
             item.count -= decr.count;
 
             this.#executeQueries.push([Queries.ItemStackable.update, [item.count, this.userId, decr.id]]);
-            this.#updateCashValues.push({user_id:this.userId, item_id:decr.id, count:item.count});
 
             this.#itemStackableRows[found].count = item.count;
         }
@@ -99,10 +96,6 @@ class ItemStackable extends Item {
 
     get getQueries() {
         return this.#executeQueries;
-    }
-
-    get getCashValuesForUpdate() {
-        return this.#updateCashValues;
     }
 }
 

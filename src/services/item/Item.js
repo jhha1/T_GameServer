@@ -1,5 +1,4 @@
 const ItemType = require("../../common/constValues").Item.Type;
-const ItemRepository = require("./ItemRepository");
 
 class Item {
     constructor(req) {
@@ -8,23 +7,18 @@ class Item {
         this.shardId = req.session.shardId;
     }
 
-    static isFloatingPointItem(itemId) {
-        return ItemType.FloatingPoint === itemId;
-    }
-
     static isStackableItem(itemId) {
-        return ItemType.Stackable < itemId  && itemId < ItemType.Equip;
+        return ItemType.Stackable < itemId  && itemId < ItemType.Emoji;
     }
 
-    static isEquipItem(itemId) {
-        return ItemType.Equip < itemId;
+    static isEmojiItem(itemId) {
+        return ItemType.Emoji < itemId;
     }
 
     static checkItemType(itemType) {
         switch (itemType) {
-            case ItemType.FloatingPoint:
             case ItemType.Stackable:
-            case ItemType.Equip:
+            case ItemType.Emoji:
                 return true;
             default:
                 return false;
