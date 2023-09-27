@@ -150,7 +150,7 @@ create database t_auth character set utf8mb4 COLLATE utf8mb4_bin;
 CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `shard_id` int NOT NULL,
-  `nickname` varchar(52) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default '',
   `is_leave` int DEFAULT '0',
   `last_login_dt` bigint DEFAULT '0',
   `created_dt` bigint DEFAULT '0',
