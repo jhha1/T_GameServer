@@ -145,7 +145,7 @@ module.exports = {
 
 
 /*
-create database Auth character set utf8mb4 COLLATE utf8mb4_bin;
+create database t_auth character set utf8mb4 COLLATE utf8mb4_bin;
 
 CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -162,6 +162,7 @@ CREATE TABLE `ShardStatus` (
   `user_count` int NOT NULL,
   PRIMARY KEY (`shard_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+insert into ShardStatus (shard_id, user_count) values (1, 0),(2, 0); -- 샤드 개수만큼 
 
 CREATE TABLE `Account` (
   `seq` int NOT NULL AUTO_INCREMENT,
