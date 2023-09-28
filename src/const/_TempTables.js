@@ -145,12 +145,14 @@ module.exports = {
 
 
 /*
-create database Auth character set utf8mb4 COLLATE utf8mb4_bin;
+create database t_auth character set utf8mb4 COLLATE utf8mb4_bin;
+create database t_game01 character set utf8mb4 COLLATE utf8mb4_bin;
+create database t_game02 character set utf8mb4 COLLATE utf8mb4_bin;
 
 CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `shard_id` int NOT NULL,
-  `nickname` varchar(52) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default '',
   `is_leave` int DEFAULT '0',
   `last_login_dt` bigint DEFAULT '0',
   `created_dt` bigint DEFAULT '0',
@@ -162,6 +164,7 @@ CREATE TABLE `ShardStatus` (
   `user_count` int NOT NULL,
   PRIMARY KEY (`shard_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+insert into ShardStatus (shard_id, user_count) values (1,0),(2,0);
 
 CREATE TABLE `Account` (
   `seq` int NOT NULL AUTO_INCREMENT,
