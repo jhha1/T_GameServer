@@ -6,6 +6,7 @@ const RETRY_COUNT = 10;
 const RETRY_INTERVAL_MS = 1000;
 
 let RedisGameClient = null;
+let RedisMatchClient = null;
 
 async function connect() {
     try {
@@ -14,6 +15,9 @@ async function connect() {
         for (let name in redisConfigList) {
             if (name === 'game') {
                 await connectGame(redisConfigList[name]);
+            }
+            else if (name === 'match') {
+                await connectMatch(redisConfigList[name]);
             }
         }
 
@@ -54,7 +58,7 @@ async function connectGame(redisConfig) {
 
     // Redis 연결 끊김 이벤트 리스너
     RedisGameClient.on('error', (error) => {
-        log.error('Redis connection error:', error.message);
+        log.error('Game Redis connection error:', error.message);
     });
 
     // redis v4 연결 (비동기)
@@ -63,14 +67,39 @@ async function connectGame(redisConfig) {
     RedisGameClient = RedisGameClient.v4;
 }
 
+async function connectMatch(redisConfig) {
+    redisConfig = retryConfig(redisConfig);
+    RedisMatchClient = redis.createClient(redisConfig);
+
+    // Redis 연결 이벤트 리스너
+    RedisMatchClient.on('connect', () => {
+        log.info('Connected to Match Redis');
+    });
+
+    // Redis 연결 끊김 이벤트 리스너
+    RedisMatchClient.on('error', (error) => {
+        log.error('Match Redis connection error:', error.message);
+    });
+
+    // redis v4 연결 (비동기)
+    RedisMatchClient.connect().then(); 
+
+    RedisMatchClient = RedisMatchClient.v4;
+}
+
 async function isExpired(key) {
     let TTL = await RedisGameClient.TTL(key);
     return !TTL || TTL < ConstValues.Cache.RefreshTTL;
 }
 
 exports.connect = connect;
+exports.isExpired = isExpired;
+
 exports.getGame = () => {
     return RedisGameClient;
 };
-exports.isExpired = isExpired;
+
+exports.getMatch = () => {
+    return RedisMatchClient;
+};
 

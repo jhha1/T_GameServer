@@ -1,0 +1,21 @@
+version: '3'
+services:
+  redis_rank:
+    image: redis:5
+    container_name: t_redis-rank
+    ports:
+      - "6379:6379"
+
+  redis_match:
+    image: redis:5
+    container_name: t_redis-match
+    ports:
+      - "6380:6379"
+          
+  mysql:
+    image: mysql:8
+    container_name: t_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: sksmsfntEmek1!
+    ports:
+      - "3306:3306"

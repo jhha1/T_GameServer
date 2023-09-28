@@ -145,20 +145,11 @@ module.exports = {
 
 
 /*
-create database t_auth character set utf8mb4 COLLATE utf8mb4_bin;
-create database t_game01 character set utf8mb4 COLLATE utf8mb4_bin;
-create database t_game02 character set utf8mb4 COLLATE utf8mb4_bin;
+create database auth character set utf8mb4 COLLATE utf8mb4_bin;
+create database game01 character set utf8mb4 COLLATE utf8mb4_bin;
+create database game02 character set utf8mb4 COLLATE utf8mb4_bin;
 
-CREATE TABLE `User` (
-  `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `shard_id` int NOT NULL,
-  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default '',
-  `is_leave` int DEFAULT '0',
-  `last_login_dt` bigint DEFAULT '0',
-  `created_dt` bigint DEFAULT '0',
-  PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
+use auth;
 CREATE TABLE `ShardStatus` (
   `shard_id` int NOT NULL COMMENT '게임디비 샤드 갯수에 따라 1부터 id가 시작',
   `user_count` int NOT NULL,
@@ -178,44 +169,33 @@ CREATE TABLE `Account` (
   UNIQUE KEY `platform_type` (`platform_type`,`platform_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-CREATE TABLE `ItemDouble` (
-  `user_id` varchar(255) COLLATE utf8mb4_bin NOT NULL,
-  `item_id` int(11) NOT NULL,
-  `amount` double DEFAULT '0',
-  PRIMARY KEY (`user_id`,`item_id`)
+use game01;
+CREATE TABLE `User` (
+  `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `shard_id` int NOT NULL,
+  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default '',
+  `is_leave` int DEFAULT '0',
+  `last_login_dt` bigint DEFAULT '0',
+  `created_dt` bigint DEFAULT '0',
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-CREATE TABLE `Equip` (
-  `seq` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(255) COLLATE utf8mb4_bin NOT NULL,
-  `kind` int(11) NOT NULL,
-  `uid` int(11) NOT NULL,
-  PRIMARY KEY (`seq`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
-
-CREATE TABLE `ItemEquip` (
+CREATE TABLE `ItemStackable` (
   `user_id` varchar(255) COLLATE utf8mb4_bin NOT NULL,
   `item_id` int(11) NOT NULL,
-  `grade` int(11) NOT NULL,
-  `level` int(11) NOT NULL,
-  `piece_count` int(11) DEFAULT '0',
+  `count` bigint(20) NOT NULL,
   PRIMARY KEY (`user_id`, item_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-CREATE TABLE jhha_game01.`Hero` (
-   `user_id` varchar(255) COLLATE utf8mb4_bin NOT NULL,
-  `hero_id` int(11) NOT NULL,
-  `grade` int(11) NOT NULL,
-  `level` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`, hero_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
-
-CREATE TABLE `GachaLevel` (
-  `user_id` varchar(255) COLLATE utf8mb4_bin NOT NULL,
-  `gacha_id` int(11) NOT NULL,
-  `level` int(11) NOT NULL,
-  `point` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`,`gacha_id`)
+use game02;
+CREATE TABLE `User` (
+  `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `shard_id` int NOT NULL,
+  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default '',
+  `is_leave` int DEFAULT '0',
+  `last_login_dt` bigint DEFAULT '0',
+  `created_dt` bigint DEFAULT '0',
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `ItemStackable` (
