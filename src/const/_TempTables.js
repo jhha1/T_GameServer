@@ -164,7 +164,7 @@ CREATE TABLE `ShardStatus` (
   `user_count` int NOT NULL,
   PRIMARY KEY (`shard_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-insert into ShardStatus (shard_id, user_count) values (1,0),(2,0);
+insert into ShardStatus (shard_id, user_count) values (1, 0),(2, 0); -- 샤드 개수만큼 
 
 CREATE TABLE `Account` (
   `seq` int NOT NULL AUTO_INCREMENT,

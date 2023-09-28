@@ -73,13 +73,14 @@ async function initializeConst() {
 }
 
 async function loadConst() {
+    let tableList = {};
+
     let keys = Object.keys(CONFIG["google"]["constSheetIds"]);
     for (let key of keys) {
         let sheetId = CONFIG["google"]["constSheetIds"][key];
         let GoogleSheetObj = new googleApi.GoogleSheet(sheetId);
         let dataArray = await GoogleSheetObj.readSheetAll();
 
-        let tableList = {};
         for (let data of dataArray) {
             if (tableList[data.sheetName] === undefined) tableList[data.sheetName] = [];
             if (!data.values || data.values.length === 0) continue;
