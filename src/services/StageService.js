@@ -39,7 +39,7 @@ class StageService {
 
             executeQuery.push([Queries.Stage.updateWin, [getScore, this.userId, this.season]]);
             for (let reward of getRewards) {
-                executeQuery.push([Queries.ItemStackable.increase, [this.userId, reward[0], reward[1]]]);
+                executeQuery.push([Queries.ItemStackable.increase, [reward[1],this.userId, reward[0]]]);
             }
         } 
         else {
