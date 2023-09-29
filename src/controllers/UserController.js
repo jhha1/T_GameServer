@@ -7,7 +7,7 @@ exports.UserLogin = async (req, res, cb) => {
         
         let result = await LoginObject.getLoginData();
 
-        let MessageObj = new msg.UserLogin(result.User, result.ItemStackable);
+        let MessageObj = new msg.UserLogin(result.user, result.item_stackable, result.stage);
 
         return MessageObj;
 

@@ -2,6 +2,8 @@ const UserService = require("./UserService");
 const ItemService = require("./item/ItemService");
 const { Item } = require("../common/constValues");
 const ConstTables = require("../const/mapper");
+const Queries = require('../queries/mapper');
+const db = require("../database/db");
 const log = require("../utils/logger");
 
 class LoginService {
@@ -30,7 +32,7 @@ class LoginService {
             let curSeason = ConstTables.KeyValues.get('CurrentSeason') || 0;
 
             let queries = [
-                [Queries.Stage.selectByUserIdAndSeason, [this.userId, curSeason]]
+                ["StageRow", Queries.Stage.selectByUserIdAndSeason, [this.userId, curSeason]]
             ]
             const { StageRow } = await db.select(this.shardId, queries);
 
