@@ -5,17 +5,28 @@ services:
     container_name: t_redis-rank
     ports:
       - "6379:6379"
+    volumes:
+      - /Users/jhha/Projects/redis_data:/data  
 
   redis_match:
     image: redis:5
     container_name: t_redis-match
     ports:
       - "6380:6379"
+    volumes:
+      - /Users/jhha/Projects/redis_data:/data   
           
   mysql:
     image: mysql:8
     container_name: t_mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: sksmsfntEmek1!
+    # 컨테이너 시작시 재시작 
+    restart: always 
+    env_file:
+      - ./docker/env.mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_bin      
+    volumes:
+      - /Users/jhha/mysql-data:/var/lib/mysql

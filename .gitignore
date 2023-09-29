@@ -3,4 +3,5 @@
 /logs
 nodeproject-google.json
 /.idea
-/.vscode
+/.vscode/launch.json
+/docker
