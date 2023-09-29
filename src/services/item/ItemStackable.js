@@ -26,7 +26,7 @@ class ItemStackable extends Item {
     async get(itemIdList=null) {
         if (this.isEmpty()) {
             let queries = [
-                ["ItemStackable", Queries.ItemStackable.select, [this.userId]]
+                ["ItemStackable", Queries.ItemStackable.selectByUserId, [this.userId]]
             ];
 
             let { ItemStackable } = await db.select(this.shardId, queries);

@@ -18,7 +18,23 @@ class AccountLogin {
 class UserLogin {
 }
 
+class FriendPlayStart {
+  constructor(room_name, my_ip) {
+    this.room_name = room_name;
+    this.my_ip = my_ip;
+ }
+}
+
+class FriendPlayFinish {
+  constructor(room_key, is_win) {
+    this.room_key = room_key;
+    this.is_win = is_win;
+ }
+}
+
 module.exports = {
   AccountLogin,
   UserLogin,
+  FriendPlayStart,
+  FriendPlayFinish,
 }

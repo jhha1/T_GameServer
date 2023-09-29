@@ -19,13 +19,31 @@ class AccountLogin {
 }
 
 class UserLogin {
-  constructor(user, item_stackable) {
+  constructor(user, item_stackable, stage) {
      this.user = user;
      this.item_stackable = item_stackable;
+     this.stage = stage;
   }
+}
+
+class FriendPlayStart {
+  constructor(room_key, player_info_list) {
+    this.room_key = room_key;
+    this.player_info_list = player_info_list;
+ }
+}
+
+class FriendPlayFinish {
+  constructor(stage, item_stackable, my_rank) {
+    this.stage = stage;
+    this.item_stackable = item_stackable;
+    this.my_rank = my_rank;
+ }
 }
 
 module.exports = {
   AccountLogin,
   UserLogin,
+  FriendPlayStart,
+  FriendPlayFinish,
 }

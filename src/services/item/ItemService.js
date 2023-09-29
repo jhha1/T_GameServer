@@ -23,7 +23,7 @@ class ItemService {
 
     async getAll() {
         let queries = [
-            ["ItemStackable", Queries.ItemStackable.select, [this.#userId]]
+            ["ItemStackable", Queries.ItemStackable.selectByUserId, [this.#userId]]
         ];
 
         let { ItemStackable } = await db.select(this.#shardId, queries);

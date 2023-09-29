@@ -23,7 +23,29 @@ class ItemStackable {
      this.count = 0;
 }};
 
+class PlayerInfo {
+  constructor() {
+     this.user_id = '';
+     this.ip = '';
+     this.nickname = '';
+     this.emote_id = 0;
+     this.rank = 0;
+     this.win = 0;
+     this.lose = 0;
+}};
+
+class Stage {
+  constructor() {
+     this.user_id = '';
+     this.season = '';
+     this.score = 0;
+     this.win = 0;
+     this.lose = 0;
+}};
+
 module.exports = {
   User,
   ItemStackable,
+  PlayerInfo,
+  Stage,
 }

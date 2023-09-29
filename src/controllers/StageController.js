@@ -1,109 +1,96 @@
+const MatchFriendService = require('../services/MatchFriendService');
 const StageService = require('../services/StageService');
-const Response = require("../utils/response");
-const moment = require("moment/moment");
+const cache = require('../database/cache');
 const log = require("../utils/logger");
-const ConstTables = require("../const/mapper");
-const ConstValues = require("../common/constValues");
 
-exports.StageClear = async (req, res, cb) => {
+exports.FriendPlayStart = async (req, res, cb) => {
+    const roomName = req.body.room_name;
+    const myIp = req.body.my_ip;
+
     try {
-        let obj = new StageClear(req, res);
-        
-        await obj.clear();
+        const service = new MatchFriendService(req, roomName, myIp);
 
-        return obj.result;
+        service.checkRoomName(); 
 
-    } catch (err) {
-        throw err;
+        await lock(); // 동시성 제어를 위한 락
+
+        const roomKey = await service.getMatchInfo();
+        if (roomKey) {
+            await service.joinRoom(roomKey);
+        } 
+        else {
+            await service.createRoom();
+        }
+
+        await unlock(); 
+
+        return service.result;
+
+    } catch (e) {
+        // 방이름 체크예외를 제외한 모든 예외는 락키를 푼다.
+        // 방이름 체크는 락키을 걸기전에 일어나고, 이상한 방이름이면 캐싱키에 쓰면 안된다.
+        if (e !== 100001 && e !== 100002) {
+            await unlock(); 
+        }
+        throw e;
+    }
+
+    async function lock() {
+        let a = lockKey();
+        let ret = await cache.getMatch().setEx(lockKey(), 60, '1'); // key, value
+        if (ret === 0) {
+            log.error(`FailedCreateFriendRoom. room is busy..(loocked)`);
+            throw 100003; // 룸 생성중 or 조인중
+        }
+        await cache.getMatch().expire(lockKey(), 60);
+    }
+
+    async function unlock() {
+        await cache.getMatch().del(lockKey());
+    }
+
+    function lockKey(){
+        return `FL:${roomName}`;
     }
 }
 
-class StageClear {
-    constructor(req, res) {
-        this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
-        this.lastStageId = req.session.stageId;
-        this.lastGoldAmount = req.session.goldAmount;
-        this.lastStageClearDt = req.session.lastStageClearDt;
+exports.FriendPlayFinish = async (req, res, cb) => {
+    const roomKey = req.body.room_key;
+    const isWin = req.body.is_win;
 
-        this.clearStageId = Number(req.query.stageId);
-        this.clearGoldAmount = Number(req.query.goldAmount);
-        this.isRepeat = Number(req.query.isRepeat);
+    try {
+        const service = new StageService(req, roomKey, isWin);
 
-        this.C_StageInfo = null;
-        this.clearSubStageId = 0;
-        this.newGoldAmount = 0;
-        this.now = moment.utc().format('x');
-        this.warningPoint = 0;
+        await lock(); // 동시성 제어를 위한 락
 
-        this.StageService = new StageService(req);
-        this.response = new Response(res);
+        await service.FriendPlayFinish();
+
+        const result = await service.result();
+
+        await unlock(); 
+
+        return result;
+
+    } catch (e) {
+        await unlock(); 
+        throw e;
     }
 
-    async clear() {
-        try {
-            this.#checkStageId();
-            this.#checkPlayTime();
-            this.#checkGold();
-
-            await this.StageService.updateClear(this.clearStageId, this.newGoldAmount, this.warningPoint);
-
-        } catch (err) {
-            throw err;
+    async function lock() {
+        let a = lockKey();
+        let ret = await cache.getMatch().setEx(lockKey(), 60, '1'); // key, value
+        if (ret === 0) {
+            log.error(`FailedFriendPlayFinish.  (loocked)`);
+            throw 106; 
         }
+        await cache.getMatch().expire(lockKey(), 60);
     }
 
-    #checkStageId() {
-        if (this.isRepeat) {
-            if (this.lastStageId !== this.clearStageId) {
-                log.error(this.req, `InvalidStageId. stage{last:${this.lastStageId},try:${this.clearStageId}}}`);
-                throw 999999; // 반복은 스테이지가 동일함
-            }
-        }
-        else {
-            if (this.lastStageId + 1 !== this.clearStageId) {
-                log.error(this.req, `InvalidStageId. tryStageId:${this.clearStageId}, lastStageId:${this.lastStageId}`);
-                throw 999999;
-            }
-        }
+    async function unlock() {
+        await cache.getMatch().del(lockKey());
     }
 
-    #checkPlayTime() {
-        this.C_StageInfo = ConstTables.Stage.get(this.clearStageId);
-        this.clearSubStageId = this.C_StageInfo.subStageId ?? 0;
-
-        if (this.clearSubStageId === ConstValues.Stage.SubStageStart) {
-            return; // 첫 스테이지는 체크하지 않는다.
-        }
-
-        if (this.now - this.lastStageClearDt < ConstValues.Stage.PlayLimitTime) { // 플레이시간 짧음
-            log.error(this.req, `Hack_PlayTime. clearDt:${this.lastStageClearDt - this.now}`);
-            this.warningPoint++;
-        }
-    }
-
-    #checkGold() {
-        const goldAmount = (this.C_StageInfo)? this.C_StageInfo.goldAmount : 0;
-        const goldBuff_1 = this.req.session.goldBuff_1 || 1;
-        const goldBuff_2 = this.req.session.goldBuff_2 || 1;
-
-        // 0.01% 까지 커버가능
-        const getGold = Math.floor((goldAmount * 100) + (goldBuff_1 * 100) + (goldBuff_2 * 100) / 100);
-        const checkGold = getGold + Math.ceil(getGold / ConstValues.Stage.GoldBufferPercent);
-        if (this.clearGoldAmount > checkGold) {
-            log.error(this.req, `Hack_Gold. normalGold:${getGold}, tryGold:${this.clearGoldAmount}`);
-            this.warningPoint++;
-        }
-
-        this.newGoldAmount = this.lastGoldAmount + this.clearGoldAmount;
-    }
-    get result () {
-        this.response.primitives()
-            .set("stage_id", this.clearStageId)
-            .set("gold_amount", this.newGoldAmount)
-            .end();
-
-        return this.response;
+    function lockKey(){
+        return `FFL:${req.session.user_id}`;
     }
 }

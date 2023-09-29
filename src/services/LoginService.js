@@ -1,6 +1,7 @@
 const UserService = require("./UserService");
 const ItemService = require("./item/ItemService");
-const { Item } = require("../common/constValues")
+const { Item } = require("../common/constValues");
+const ConstTables = require("../const/mapper");
 const log = require("../utils/logger");
 
 class LoginService {
@@ -24,9 +25,19 @@ class LoginService {
 
             const haveItemList = await this.#ItemServiceObject.getAll();
 
+            /// todo. 위에 다시 정리
+
+            let curSeason = ConstTables.KeyValues.get('CurrentSeason') || 0;
+
+            let queries = [
+                [Queries.Stage.selectByUserIdAndSeason, [this.userId, curSeason]]
+            ]
+            const { StageRow } = await db.select(this.shardId, queries);
+
             return {
-                User:haveUser,
-                ItemStackable:haveItemList[Item.Type.Stackable],
+                user: haveUser,
+                item_stackable: haveItemList[Item.Type.Stackable],
+                stage: StageRow[0]
             };
         }
         catch (err) {

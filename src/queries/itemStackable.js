@@ -1,5 +1,5 @@
 module.exports = {
-    select: `SELECT user_id, item_id, count FROM ItemStackable WHERE user_id = ?;`,
+    selectByUserId: `SELECT user_id, item_id, count FROM ItemStackable WHERE user_id = ?;`,
     selectWithId: `SELECT user_id, item_id, count FROM ItemStackable WHERE user_id = ? AND item_id = ?;`,
     insert: `INSERT INTO ItemStackable (user_id, item_id, count) VALUES (?, ? , ?);`,
     update: `UPDATE ItemStackable SET count = ? WHERE user_id = ? AND item_id = ?;`,

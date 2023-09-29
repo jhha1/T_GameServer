@@ -15,6 +15,11 @@ const Random = {
     GachaItemPet: null,
 };
 
+// min이상 ~ max이하 사이의 난수 생성
+function sysRangeRand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function mergeDuplicatedItems(itemList) {
     // 중복아이템 합산
     let merged = [];
@@ -34,3 +39,4 @@ function mergeDuplicatedItems(itemList) {
 
 module.exports.Random = Random;
 module.exports.mergeDuplicatedItems = mergeDuplicatedItems;
+module.exports.sysRangeRand = sysRangeRand;

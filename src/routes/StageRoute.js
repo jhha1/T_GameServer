@@ -1,7 +1,8 @@
 const StageController = require('../controllers/StageController');
 
 module.exports.routes = {
-    "/StageClear": StageController.StageClear,
+    "/FriendPlayStart": StageController.FriendPlayStart,
+    "/FriendPlayFinish": StageController.FriendPlayFinish,
 }
 
 

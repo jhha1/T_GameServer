@@ -44,7 +44,12 @@ class UserService {
         // 유저 생성시 같이 생성되어야 할 다른 디비로우도 추가
         // ...
 
-        let newUserQuery = [[Queries.User.insert, [userId, shardId, now, now]]];
+        let curSeason = ConstTables.KeyValues.get('CurrentSeason') || 0;
+
+        let newUserQuery = [
+            [Queries.User.insert, [userId, shardId, now, now]],
+            [Queries.Stage.insert, [userId, curSeason, 0, 0, 0]]
+        ];
         if (itemStackableQueryData.length > 0) newUserQuery.push([Queries.ItemStackable.insertMany(itemStackableInitData.length), itemStackableQueryData]);
 
         return newUserQuery;
