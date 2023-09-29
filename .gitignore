@@ -3,5 +3,6 @@
 /logs
 nodeproject-google.json
 /.idea
-/.vscode/launch.json
+/.vscode
 /docker
+docker-compose.yml
