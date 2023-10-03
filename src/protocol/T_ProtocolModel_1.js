@@ -47,6 +47,7 @@ class Mail {
   constructor() {
      this.mail_id = 0;
      this.user_id = '';
+     this.mail_type = 0;
      this.subject = '';
      this.text = '';
      this.img_path = '';
