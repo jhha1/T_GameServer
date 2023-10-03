@@ -44,8 +44,8 @@ class StageService {
                 throw 100011; // 혼자 플레이하고 이길수없다
             }
 
-            let found = roomInfo.findIndex((x) => x.is_finish === 1);
-            if (found > -1) {
+            let found2 = roomInfo.findIndex((x) => x.is_finish === 1);
+            if (found2 > -1) {
                 log.error(`FailedFriendPlayFinish. already target is rewarded`);
                 throw 100009; // 상대방유저가 이미 이겼는데 나도 이겼다고 옴? 핵?
                 // is_finish - 0:미종료, 1:종료.이김. 2:종료.짐
