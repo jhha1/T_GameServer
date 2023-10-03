@@ -37,16 +37,16 @@ exports.FriendPlayStart = async (req, res, cb) => {
 
     async function lock() {
         let a = lockKey();
-        let ret = await cache.getMatch().setEx(lockKey(), 60, '1'); // key, value
+        let ret = await cache.getGame().setEx(lockKey(), 60, '1'); // key, value
         if (ret === 0) {
             log.error(`FailedCreateFriendRoom. room is busy..(loocked)`);
             throw 100003; // 룸 생성중 or 조인중
         }
-        await cache.getMatch().expire(lockKey(), 60);
+        await cache.getGame().expire(lockKey(), 60);
     }
 
     async function unlock() {
-        await cache.getMatch().del(lockKey());
+        await cache.getGame().del(lockKey());
     }
 
     function lockKey(){
@@ -78,16 +78,16 @@ exports.FriendPlayFinish = async (req, res, cb) => {
 
     async function lock() {
         let a = lockKey();
-        let ret = await cache.getMatch().setEx(lockKey(), 60, '1'); // key, value
+        let ret = await cache.getGame().setEx(lockKey(), 60, '1'); // key, value
         if (ret === 0) {
             log.error(`FailedFriendPlayFinish.  (loocked)`);
             throw 106; 
         }
-        await cache.getMatch().expire(lockKey(), 60);
+        await cache.getGame().expire(lockKey(), 60);
     }
 
     async function unlock() {
-        await cache.getMatch().del(lockKey());
+        await cache.getGame().del(lockKey());
     }
 
     function lockKey(){

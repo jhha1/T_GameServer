@@ -16,7 +16,7 @@ class StageService {
     }
 
     async FriendPlayFinish() {
-        let roomInfo = await cache.getMatch().get(this.roomKey);
+        let roomInfo = await cache.getGame().get(this.roomKey);
         if (!roomInfo) {
             log.error(`FailedFriendPlayFinish. noExistRoom`);
             throw 100007; // 플레이한 룸 정보가 없다. 핵?
@@ -24,9 +24,14 @@ class StageService {
         roomInfo = JSON.parse(roomInfo);
         
         let found = roomInfo.findIndex((x) => x.user_id === this.userId);
-        if (!found) {
+        if (found === -1) {
             log.error(`FailedFriendPlayFinish. I was not the player`);
             throw 100008; // 내가 플레이한게 아닌데? 핵?
+        }
+
+        if(roomInfo[found].is_finish) {
+            log.error(`FailedFriendPlayFinish. already finished`);
+            throw 100010; // 이미 종료된게임
         }
 
         this.season = KeyValuesTable.get('CurrentSeason') || 0;
@@ -34,6 +39,18 @@ class StageService {
         let executeQuery = [];
 
         if (this.isWin) {
+            if (roomInfo.length === 1) {
+                log.error(`FailedFriendPlayFinish. player is only one. Invalid WIN`);
+                throw 100011; // 혼자 플레이하고 이길수없다
+            }
+
+            let found = roomInfo.findIndex((x) => x.is_finish === 1);
+            if (found > -1) {
+                log.error(`FailedFriendPlayFinish. already target is rewarded`);
+                throw 100009; // 상대방유저가 이미 이겼는데 나도 이겼다고 옴? 핵?
+                // is_finish - 0:미종료, 1:종료.이김. 2:종료.짐
+            }
+
             const getScore = KeyValuesTable.get('StageWinScore') || 0;
             const getRewards = KeyValuesTable.get('StageWinReward') || [];
 
@@ -46,9 +63,13 @@ class StageService {
             executeQuery.push([Queries.Stage.updateLose, [this.userId, this.season]]);
         }
 
-        await db.execute(this.shardId, executeQuery);
+        if (executeQuery.length > 0) {
+            await db.execute(this.shardId, executeQuery);
 
-        await cache.getMatch().expire(this.roomKey, 60*60); // 2명 다 finish 프로토콜에서 방유무 확인하므로 지우진 않고,, 1시간 뒤에 리얼 방폭.
+            // 중복 보상 막기용
+            roomInfo[found].is_finish = 1;
+            await cache.getGame().set(this.roomKey, JSON.stringify(roomInfo));
+        }
     }
 
     async result() {

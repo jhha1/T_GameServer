@@ -32,42 +32,52 @@ class MatchFriendService {
     }
 
     async getMatchInfo() {
-        return await cache.getMatch().get(this.matchKey);
+        return await cache.getGame().get(this.matchKey);
     }
 
     async createRoom() {
         const roomKey = this.makeRoomKey(this.roomName);
         const myInfo =  await this.getMyInfo();
-        const roomDataJson = JSON.stringify([myInfo]);
+        const roomInfoJson = JSON.stringify([myInfo]);
         
-        await cache.getMatch().mSet([this.matchKey, roomKey, roomKey, roomDataJson]);
+        await cache.getGame().mSet([this.matchKey, roomKey, roomKey, roomInfoJson]);
+        
+        // 레거시 데이터 관리용
+        await cache.getGame().expire(roomKey, 60*60*24); // 하루 뒤에 리얼 방폭.
 
         this.playerInfos = [myInfo];
         this.roomKey = roomKey;
     }
 
     async joinRoom(roomKey) {
-        let roomData = await cache.getMatch().get(roomKey);
-        if (!roomData) {
+        let roomInfo = await cache.getGame().get(roomKey);
+        if (!roomInfo) {
             log.error(`FailedFriendRoomJoin. NoExistRoom:${roomKey}`);
             throw 100005; // 조인할 룸 정보가 없다
         }
 
-        roomData = JSON.parse(roomData);
-        if (roomData.user_id === this.userId) {
+        roomInfo = JSON.parse(roomInfo);
+
+        if (roomInfo.length > 2) {
+            log.error(`FailedFriendRoomJoin. ExccedRoomMember`);
+            throw 100012; // 정원초과
+        }
+
+        let found = roomInfo.findIndex((x) => x.user_id === this.userId);
+        if (found > -1) {
             log.error(`FailedFriendRoomJoin. SameUser`);
             throw 100006; // 내가 만든 방에 내가 조인 할 수 없다.
         }
 
         const myInfo = await this.getMyInfo();
-        roomData.push(myInfo);
-        const roomDataJson = JSON.stringify(roomData);
+        roomInfo.push(myInfo);
+        const roomInfoJson = JSON.stringify(roomInfo);
         
-        await cache.getMatch().set(roomKey, roomDataJson);
+        await cache.getGame().set(roomKey, roomInfoJson);
 
-        await cache.getMatch().del(this.matchKey);
+        await cache.getGame().del(this.matchKey);
 
-        this.playerInfos = roomData;
+        this.playerInfos = roomInfo;
         this.roomKey = roomKey;
     }
 
@@ -86,7 +96,7 @@ class MatchFriendService {
 
         let myRank = 0;
 
-        return {user_id: UserRow[0].user_id, ip: this.myIP, nickname: "no Name", emote_id: UserRow[0].emote_id, rank: myRank, win: StageRow[0].win, lose: StageRow[0].lose};
+        return {user_id: UserRow[0].user_id, ip: this.myIP, nickname: "no Name", emote_id: UserRow[0].emote_id, rank: myRank, win: StageRow[0].win, lose: StageRow[0].lose, is_finish:0};
     }
 
     makeRoomKey(roomName) {
