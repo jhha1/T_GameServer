@@ -58,16 +58,17 @@ class StageService {
             for (let reward of getRewards) {
                 executeQuery.push([Queries.ItemStackable.increase, [reward[1],this.userId, reward[0]]]);
             }
+
+            roomInfo[found].is_finish = 1;
         } 
         else {
             executeQuery.push([Queries.Stage.updateLose, [this.userId, this.season]]);
+
+            roomInfo[found].is_finish = 2;
         }
 
         if (executeQuery.length > 0) {
             await db.execute(this.shardId, executeQuery);
-
-            // 중복 보상 막기용
-            roomInfo[found].is_finish = 1;
             await cache.getGame().set(this.roomKey, JSON.stringify(roomInfo));
         }
     }
