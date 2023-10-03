@@ -51,6 +51,7 @@ class StageService {
                 // is_finish - 0:미종료, 1:종료.이김. 2:종료.짐
             }
 
+            // db
             const getScore = KeyValuesTable.get('StageWinScore') || 0;
             const getRewards = KeyValuesTable.get('StageWinReward') || [];
 
@@ -58,6 +59,9 @@ class StageService {
             for (let reward of getRewards) {
                 executeQuery.push([Queries.ItemStackable.increase, [reward[1],this.userId, reward[0]]]);
             }
+
+            // redis: rank
+            
 
             roomInfo[found].is_finish = 1;
         } 
@@ -70,6 +74,7 @@ class StageService {
         if (executeQuery.length > 0) {
             await db.execute(this.shardId, executeQuery);
             await cache.getGame().set(this.roomKey, JSON.stringify(roomInfo));
+            //await cache.getGame().zAdd(rankKey(), JSON.stringify(roomInfo));
         }
     }
 
@@ -86,7 +91,14 @@ class StageService {
             item_stackable: ItemStackableRows,
             my_rank: 0
         }
+    } 
+}
+
+function rankKey(season=null) {
+    if (!season) {
+        season = ConstTables.KeyValues.get('CurrentSeason') || 0;
     }
+    return `R:${season}`;
 }
 
 

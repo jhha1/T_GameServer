@@ -187,6 +187,21 @@ CREATE TABLE `ItemStackable` (
   PRIMARY KEY (`user_id`, item_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+CREATE TABLE `Mail` (
+  `mail_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `mail_type` int default 0,
+  `subject` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
+  `text` text COLLATE utf8mb4_bin,
+  `img_path` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
+  `reward_list` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '',
+  `received_dt` bigint DEFAULT '0',
+  `read_dt` bigint DEFAULT '0',
+  `rewarded_dt` bigint DEFAULT '0',
+  PRIMARY KEY (`seq`),
+  KEY (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
 use game02;
 CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -203,5 +218,20 @@ CREATE TABLE `ItemStackable` (
   `item_id` int(11) NOT NULL,
   `count` bigint(20) NOT NULL,
   PRIMARY KEY (`user_id`, item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `Mail` (
+  `mail_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `mail_type` int default 0,
+  `subject` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
+  `text` text COLLATE utf8mb4_bin,
+  `img_path` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
+  `reward_list` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '',
+  `received_dt` bigint DEFAULT '0',
+  `read_dt` bigint DEFAULT '0',
+  `rewarded_dt` bigint DEFAULT '0',
+  PRIMARY KEY (`seq`),
+  KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
  */

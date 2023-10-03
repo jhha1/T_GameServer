@@ -41,9 +41,16 @@ class FriendPlayFinish {
  }
 }
 
+class MailList {
+  constructor(mail_list) {
+    this.mail_list = mail_list;
+ }
+}
+
 module.exports = {
   AccountLogin,
   UserLogin,
   FriendPlayStart,
   FriendPlayFinish,
+  MailList,
 }

@@ -43,9 +43,23 @@ class Stage {
      this.lose = 0;
 }};
 
+class Mail {
+  constructor() {
+     this.mail_id = 0;
+     this.user_id = '';
+     this.subject = '';
+     this.text = '';
+     this.img_path = '';
+     this.reward_list = '';
+     this.received_dt = 0;
+     this.read_dt = 0;
+     this.rewarded_dt = 0;
+}};
+
 module.exports = {
   User,
   ItemStackable,
   PlayerInfo,
   Stage,
+  Mail,
 }

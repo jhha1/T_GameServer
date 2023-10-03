@@ -32,9 +32,13 @@ class FriendPlayFinish {
  }
 }
 
+class MailList {
+}
+
 module.exports = {
   AccountLogin,
   UserLogin,
   FriendPlayStart,
   FriendPlayFinish,
+  MailList,
 }
