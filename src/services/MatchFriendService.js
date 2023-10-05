@@ -96,7 +96,7 @@ class MatchFriendService {
 
         let myRank = 0;
 
-        return {user_id: UserRow[0].user_id, ip: this.myIP, nickname: "no Name", emote_id: UserRow[0].emote_id, rank: myRank, win: StageRow[0].win, lose: StageRow[0].lose, is_finish:0};
+        return {user_id: UserRow[0].user_id, ip: this.myIP, nickname: "no Name", emote_id: UserRow[0].emote_id, rank: myRank, win: StageRow[0].win, lose: StageRow[0].lose, result:0};
     }
 
     makeRoomKey(roomName) {
@@ -107,8 +107,12 @@ class MatchFriendService {
         return `FM:${this.roomName}`;
     }
 
-    get result() {
-        return {room_key:this.roomKey, palyer_info_list:this.playerInfos};
+    get uniqueRoomKey() {
+        return this.roomKey;
+    }
+
+    get playerList() {
+        return this.playerInfos;
     }
 }
 

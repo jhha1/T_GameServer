@@ -32,6 +32,7 @@ class PlayerInfo {
      this.rank = 0;
      this.win = 0;
      this.lose = 0;
+     this.result = 0;
 }};
 
 class Stage {

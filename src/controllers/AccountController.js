@@ -22,10 +22,13 @@ exports.AccountLogin = async (req, res, cb) => {
 
         await session.init(req, AccountRow);
 
-        const messageObj = new msg.AccountLogin(AccountRow.platform_type,
-            AccountRow.platform_id, AccountRow.user_id, AccountRow.device_type, AccountRow.is_leave);
-
-        return messageObj;
+        return new msg.AccountLogin (
+            AccountRow.platform_type,
+            AccountRow.platform_id,
+            AccountRow.user_id,
+            AccountRow.device_type,
+            AccountRow.is_leave
+        );
 
     } catch (err) {
         throw err;

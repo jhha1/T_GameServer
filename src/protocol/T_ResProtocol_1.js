@@ -26,6 +26,13 @@ class UserLogin {
   }
 }
 
+class FriendPlayInfo {
+    constructor(room_key, player_info_list) {
+        this.room_key = room_key;
+        this.player_info_list = player_info_list;
+    }
+}
+
 class FriendPlayStart {
   constructor(room_key, player_info_list) {
     this.room_key = room_key;
@@ -50,6 +57,7 @@ class MailList {
 module.exports = {
   AccountLogin,
   UserLogin,
+    FriendPlayInfo,
   FriendPlayStart,
   FriendPlayFinish,
   MailList,

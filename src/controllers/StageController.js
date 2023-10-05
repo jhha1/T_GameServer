@@ -1,7 +1,23 @@
 const MatchFriendService = require('../services/MatchFriendService');
 const StageService = require('../services/StageService');
+const msg = require("../protocol/T_ResProtocol_1");
 const cache = require('../database/cache');
 const log = require("../utils/logger");
+
+exports.FriendPlayInfo = async (req, res, cb) => {
+    const roomKey = req.body.room_key;
+
+    try {
+        const service = new StageService(req);
+
+        const roomInfo = await service.getRoomInfo(roomKey) || [];
+
+        return new msg.FriendPlayInfo(roomKey, roomInfo);
+
+    } catch (e) {
+        throw e;
+    }
+}
 
 exports.FriendPlayStart = async (req, res, cb) => {
     const roomName = req.body.room_name;
@@ -24,12 +40,12 @@ exports.FriendPlayStart = async (req, res, cb) => {
 
         await unlock(); 
 
-        return service.result;
+        return new msg.FriendPlayStart(service.uniqueRoomKey, service.playerList);
 
     } catch (e) {
-        // 방이름 체크예외를 제외한 모든 예외는 락키를 푼다.
+        // 방이름 체크 & 락 예외를 제외한 모든 예외는 락키를 푼다.
         // 방이름 체크는 락키을 걸기전에 일어나고, 이상한 방이름이면 캐싱키에 쓰면 안된다.
-        if (e !== 100001 && e !== 100002) {
+        if (e !== 100001 && e !== 100002 && e !== 100003) {
             await unlock(); 
         }
         throw e;
@@ -59,25 +75,24 @@ exports.FriendPlayFinish = async (req, res, cb) => {
     const isWin = req.body.is_win;
 
     try {
-        const service = new StageService(req, roomKey, isWin);
+        const service = new StageService(req);
 
         await lock(); // 동시성 제어를 위한 락
 
-        await service.FriendPlayFinish();
+        await service.FriendPlayFinish(roomKey, isWin);
 
-        const result = await service.result();
+        const result = await service.getFinishInfo();
 
         await unlock(); 
 
-        return result;
+        return new msg.FriendPlayFinish(result.stage, result.item_stackable, result.my_rank);
 
     } catch (e) {
-        await unlock(); 
+        if (e !== 106) await unlock();
         throw e;
     }
 
     async function lock() {
-        let a = lockKey();
         let ret = await cache.getGame().setEx(lockKey(), 60, '1'); // key, value
         if (ret === 0) {
             log.error(`FailedFriendPlayFinish.  (loocked)`);

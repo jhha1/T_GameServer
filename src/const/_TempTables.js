@@ -173,7 +173,8 @@ use game01;
 CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `shard_id` int NOT NULL,
-  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default '',
+  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default 'No name',
+   emote_id int DEFAULT 1,
   `is_leave` int DEFAULT '0',
   `last_login_dt` bigint DEFAULT '0',
   `created_dt` bigint DEFAULT '0',
@@ -191,22 +192,33 @@ CREATE TABLE `Mail` (
   `mail_id` int NOT NULL AUTO_INCREMENT,
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `mail_type` int default 0,
-  `subject` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
-  `text` text COLLATE utf8mb4_bin,
+  lang varchar(10) COLLATE utf8mb4_bin default 'en',
+  `subject` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '',
+  `text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `img_path` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
   `reward_list` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '',
   `received_dt` bigint DEFAULT '0',
   `read_dt` bigint DEFAULT '0',
   `rewarded_dt` bigint DEFAULT '0',
-  PRIMARY KEY (`seq`),
+  PRIMARY KEY (`mail_id`),
   KEY (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `Stage` (
+  `user_id` varchar(255) COLLATE utf8mb4_bin NOT NULL,
+  `season` int(11) default 0,
+  `score` bigint(20) default 0,
+  `win` int(11) default 0,
+  `lose` int(11) default 0,
+  PRIMARY KEY (`user_id`,`season`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 use game02;
 CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `shard_id` int NOT NULL,
-  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default '',
+  `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default 'No name',
+   emote_id int DEFAULT 1,
   `is_leave` int DEFAULT '0',
   `last_login_dt` bigint DEFAULT '0',
   `created_dt` bigint DEFAULT '0',
@@ -224,14 +236,24 @@ CREATE TABLE `Mail` (
   `mail_id` int NOT NULL AUTO_INCREMENT,
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `mail_type` int default 0,
-  `subject` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
-  `text` text COLLATE utf8mb4_bin,
+  lang varchar(10) COLLATE utf8mb4_bin default 'en',
+  `subject` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '',
+  `text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `img_path` varchar(100) COLLATE utf8mb4_bin DEFAULT '',
   `reward_list` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '',
   `received_dt` bigint DEFAULT '0',
   `read_dt` bigint DEFAULT '0',
   `rewarded_dt` bigint DEFAULT '0',
-  PRIMARY KEY (`seq`),
+  PRIMARY KEY (`mail_id`),
   KEY (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `Stage` (
+  `user_id` varchar(255) COLLATE utf8mb4_bin NOT NULL,
+  `season` int(11) default 0,
+  `score` bigint(20) default 0,
+  `win` int(11) default 0,
+  `lose` int(11) default 0,
+  PRIMARY KEY (`user_id`,`season`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
  */
