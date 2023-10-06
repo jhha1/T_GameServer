@@ -43,7 +43,7 @@ class MatchFriendService {
         await cache.getGame().mSet([this.matchKey, roomKey, roomKey, roomInfoJson]);
         
         // 레거시 데이터 관리용
-        await cache.getGame().expire(roomKey, 60*60*24); // 하루 뒤에 리얼 방폭.
+        await cache.getGame().expire(roomKey, 60*60); // 1 hour 뒤에 리얼 방폭.
 
         this.playerInfos = [myInfo];
         this.roomKey = roomKey;

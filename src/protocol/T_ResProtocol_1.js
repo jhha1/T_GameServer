@@ -10,11 +10,10 @@
 
 class AccountLogin {
   constructor(platform_type, platform_id, user_id, device_type, is_leave) {
-     this.platform_type = platform_type;
-     this.platform_id = platform_id;
-     this.user_id = user_id;
-     this.device_type = device_type;
-     this.is_leave = is_leave;
+     this.msg = [platform_type, platform_id, user_id, device_type, is_leave];
+  }
+  make() {
+      return this.msg;
   }
 }
 
@@ -26,10 +25,25 @@ class UserLogin {
   }
 }
 
-class FriendPlayInfo {
+class RoomInfo {
     constructor(room_key, player_info_list) {
         this.room_key = room_key;
         this.player_info_list = player_info_list;
+    }
+}
+
+class RandomMatchPlayStart {
+    constructor(room_key, player_info_list) {
+        this.room_key = room_key;
+        this.player_info_list = player_info_list;
+    }
+}
+
+class RandomMatchPlayFinish {
+    constructor(stage, item_stackable, my_rank) {
+        this.stage = stage;
+        this.item_stackable = item_stackable;
+        this.my_rank = my_rank;
     }
 }
 
@@ -48,6 +62,8 @@ class FriendPlayFinish {
  }
 }
 
+class ForcePlayOut {}
+
 class MailList {
   constructor(mail_list) {
     this.mail_list = mail_list;
@@ -57,7 +73,9 @@ class MailList {
 module.exports = {
   AccountLogin,
   UserLogin,
-    FriendPlayInfo,
+    RoomInfo,
+    RandomMatchPlayStart,
+    RandomMatchPlayFinish,
   FriendPlayStart,
   FriendPlayFinish,
   MailList,

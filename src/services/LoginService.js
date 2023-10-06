@@ -32,7 +32,7 @@ class LoginService {
             let curSeason = ConstTables.KeyValues.get('CurrentSeason') || 0;
 
             let queries = [
-                ["StageRow", Queries.Stage.selectByUserIdAndSeason, [this.userId, curSeason]]
+                ["StageRow", Queries.Stage.selectByUserIdAndSeason, [curSeason, this.userId]]
             ]
             const { StageRow } = await db.select(this.shardId, queries);
 

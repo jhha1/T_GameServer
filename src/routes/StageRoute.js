@@ -1,9 +1,12 @@
 const StageController = require('../controllers/StageController');
 
 module.exports.routes = {
-    "/FriendPlayInfo": StageController.FriendPlayInfo,
+    "/RoomInfo": StageController.RoomInfo,
+    "/RandomMatchPlayStart": StageController.RandomMatchPlayStart,
+    "/RandomMatchPlayFinish": StageController.RandomMatchPlayFinish,
     "/FriendPlayStart": StageController.FriendPlayStart,
     "/FriendPlayFinish": StageController.FriendPlayFinish,
+    "/ForcePlayOut": StageController.ForcePlayOut,
 }
 
 

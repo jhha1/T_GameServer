@@ -2,6 +2,8 @@ const _ = require("lodash");
 const moment = require("moment/moment");
 const ConstValues = require("../common/constValues");
 
+const INT_MAX = Math.pow(2, 32) - 1;
+
 const Random = {
     GachaGradeItemEquip: null, // 등급 선택
     GachaGradeItemWeapon: null,
@@ -37,6 +39,7 @@ function mergeDuplicatedItems(itemList) {
     return merged;
 }
 
+module.exports.INT_MAX = INT_MAX;
 module.exports.Random = Random;
 module.exports.mergeDuplicatedItems = mergeDuplicatedItems;
 module.exports.sysRangeRand = sysRangeRand;

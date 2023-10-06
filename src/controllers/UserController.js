@@ -1,5 +1,5 @@
 const LoginService = require('../services/LoginService');
-const msg = require("../protocol/T_ResProtocol_1");
+const resMsg = require("../protocol/T_ResProtocol_1");
 
 exports.UserLogin = async (req, res, cb) => {
     try {
@@ -7,7 +7,7 @@ exports.UserLogin = async (req, res, cb) => {
         
         let result = await LoginObject.getLoginData();
 
-        return new msg.UserLogin(result.user, result.item_stackable, result.stage);
+        return new resMsg.UserLogin(result.user, result.item_stackable, result.stage);
 
     } catch (err) {
         throw err;

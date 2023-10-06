@@ -18,11 +18,25 @@ class AccountLogin {
 class UserLogin {
 }
 
-class FriendPlayInfo {
+class RoomInfo {
     constructor(room_key) {
         this.room_key = room_key;
     }
 }
+
+class RandomMatchPlayStart {
+    constructor(my_ip) {
+        this.my_ip = my_ip;
+    }
+}
+
+class RandomMatchPlayFinish {
+    constructor(room_key, is_win) {
+        this.room_key = room_key;
+        this.is_win = is_win;
+    }
+}
+
 
 class FriendPlayStart {
   constructor(room_name, my_ip) {
@@ -38,13 +52,21 @@ class FriendPlayFinish {
  }
 }
 
+class ForcePlayOut {
+    constructor(room_key) {
+        this.room_key = room_key;
+    }
+}
+
 class MailList {
 }
 
 module.exports = {
   AccountLogin,
   UserLogin,
-    FriendPlayInfo,
+    RoomInfo,
+    RandomMatchPlayStart,
+    RandomMatchPlayFinish,
   FriendPlayStart,
   FriendPlayFinish,
   MailList,
