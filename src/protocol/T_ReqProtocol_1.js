@@ -9,9 +9,9 @@
 //------------------------------------------------------------------------------
 
 class AccountLogin {
-  constructor(platform_type, platform_id) {
-     this.platform_type = platform_type;
-     this.platform_id = platform_id;
+  constructor(body) {
+     this.platformType = body[0];
+     this.platformId = body[1];
   }
 }
 
@@ -19,42 +19,42 @@ class UserLogin {
 }
 
 class RoomInfo {
-    constructor(room_key) {
-        this.room_key = room_key;
+    constructor(body) {
+        this.roomKey = body[0];
     }
 }
 
 class RandomMatchPlayStart {
-    constructor(my_ip) {
-        this.my_ip = my_ip;
+    constructor(body) {
+        this.myIp = body[0];
     }
 }
 
 class RandomMatchPlayFinish {
-    constructor(room_key, is_win) {
-        this.room_key = room_key;
-        this.is_win = is_win;
+    constructor(body) {
+        this.roomKey = body[0];
+        this.isWin = body[1];
     }
 }
 
 
 class FriendPlayStart {
-  constructor(room_name, my_ip) {
-    this.room_name = room_name;
-    this.my_ip = my_ip;
+  constructor(body) {
+    this.roomName = body[0];
+    this.myIp = body[1];
  }
 }
 
 class FriendPlayFinish {
-  constructor(room_key, is_win) {
-    this.room_key = room_key;
-    this.is_win = is_win;
+  constructor(body) {
+    this.roomKey = body[0];
+    this.isWin = body[1];
  }
 }
 
 class ForcePlayOut {
-    constructor(room_key) {
-        this.room_key = room_key;
+    constructor(body) {
+        this.roomKey = body[0];
     }
 }
 
@@ -69,5 +69,6 @@ module.exports = {
     RandomMatchPlayFinish,
   FriendPlayStart,
   FriendPlayFinish,
+  ForcePlayOut,
   MailList,
 }

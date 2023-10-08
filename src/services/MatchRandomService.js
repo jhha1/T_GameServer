@@ -10,7 +10,7 @@ class MatchRandomService {
         this.req = req;
         this.userId = req.session.userId;
         this.shardId = req.session.shardId;
-        this.season = req.body.season;
+        this.season = req.session.season;
         this.myIP = myIp;
         this.playerInfos = [];
         this.roomKey = '';
@@ -19,12 +19,18 @@ class MatchRandomService {
     async matching() {
         let me = await this.getMyInfo();
 
-        const matchTarget = await cache.getGame().rPop(this.queueKey);
-        if (!matchTarget || matchTarget.user_id === this.userId) {
-            await cache.getGame().lPush(this.queueKey, me);
+        let matchTarget = await cache.getGame().rPop(this.queueKey);
+        if (!matchTarget) {
+            await cache.getGame().lPush(this.queueKey, JSON.stringify(me));
         }
         else {
-            await this.createRoom(me, matchTarget);
+            matchTarget = JSON.parse(matchTarget);
+            if (matchTarget.user_id === this.userId) {
+                await cache.getGame().lPush(this.queueKey, JSON.stringify(me));
+            }
+            else {
+                await this.createRoom(me, matchTarget);
+            }
         }
     }
 
@@ -33,7 +39,7 @@ class MatchRandomService {
         const roomInfo = [me, matchTarget];
         const roomInfoJson = JSON.stringify(roomInfo);
 
-        await cache.getGame().set( roomKey, roomInfoJson);
+        await cache.getGame().set( roomKey, roomInfoJson );
         await cache.getGame().expire( roomKey, 60*60 ); // 레거시 데이터 관리용. 1 hour 뒤에 리얼 방폭.
 
         this.roomKey = roomKey;

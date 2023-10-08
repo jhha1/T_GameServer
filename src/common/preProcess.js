@@ -7,7 +7,7 @@ const log = require('../utils/logger');
 async function filter(req, res, next) {
     await checkSession(req);
 
-    req.body.season = KeyValuesTable.get('CurrentSeason') || 0;
+    req.session.season = KeyValuesTable.get('CurrentSeason') || 0;
 }
 
 async function checkSession(req) {

@@ -7,10 +7,8 @@ const cache = require('../database/cache');
 const log = require("../utils/logger");
 
 exports.RoomInfo = async (req, res, cb) => {
-    const query = req.body;
-
     try {
-        let { roomKey } = new reqMsg.RoomInfo(query[0]);
+        const { roomKey } = new reqMsg.RoomInfo(req.body);
 
         const service = new StageService(req);
 
@@ -24,9 +22,9 @@ exports.RoomInfo = async (req, res, cb) => {
 }
 
 exports.RandomMatchPlayStart = async (req, res, cb) => {
-    const myIp = req.body.my_ip;
-
     try {
+        const { myIp } = new reqMsg.RandomMatchPlayStart(req.body);
+
         const service = new MatchRandomService(req, myIp);
 
         await service.matching();
@@ -39,8 +37,7 @@ exports.RandomMatchPlayStart = async (req, res, cb) => {
 }
 
 exports.RandomMatchPlayFinish = async (req, res, cb) => {
-    const roomKey = req.body.room_key;
-    const isWin = req.body.is_win;
+    const { roomKey, isWin } = new reqMsg.RandomMatchPlayFinish(req.body);
 
     try {
         const service = new StageService(req);
@@ -77,8 +74,7 @@ exports.RandomMatchPlayFinish = async (req, res, cb) => {
 }
 
 exports.FriendPlayStart = async (req, res, cb) => {
-    const roomName = req.body.room_name;
-    const myIp = req.body.my_ip;
+    const { roomName, myIp } = new reqMsg.FriendPlayStart(req.body);
 
     try {
         const service = new MatchFriendService(req, roomName, myIp);
@@ -128,8 +124,7 @@ exports.FriendPlayStart = async (req, res, cb) => {
 }
 
 exports.FriendPlayFinish = async (req, res, cb) => {
-    const roomKey = req.body.room_key;
-    const isWin = req.body.is_win;
+    const { roomKey, isWin } = new reqMsg.FriendPlayFinish(req.body);
 
     try {
         const service = new StageService(req);
@@ -166,9 +161,10 @@ exports.FriendPlayFinish = async (req, res, cb) => {
 }
 
 exports.ForcePlayOut = async (req, res, cb) => {
-    const roomKey = req.body.room_key;
-
     try {
+        const { roomKey } = new reqMsg.ForcePlayOut(req.body);
+
+        return new resMsg.ForcePlayOut();
 
     } catch (e) {
         throw e;

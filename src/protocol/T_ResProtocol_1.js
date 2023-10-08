@@ -8,9 +8,14 @@
 // </auto-generated> 
 //------------------------------------------------------------------------------
 
+function itemStackable(args) {
+  if (!args) return [];
+  return args.flatMap(arg => Object.values(arg));
+}
+
 class AccountLogin {
-  constructor(platform_type, platform_id, user_id, device_type, is_leave) {
-     this.msg = [platform_type, platform_id, user_id, device_type, is_leave];
+  constructor(platformType, platformId, userId, deviceType, isLeave) {
+     this.msg = [platformType, platformId, userId, deviceType, isLeave];
   }
   make() {
       return this.msg;
@@ -18,10 +23,17 @@ class AccountLogin {
 }
 
 class UserLogin {
-  constructor(user, item_stackable, stage) {
+  constructor(user, itemStackable, stage) {
      this.user = user;
-     this.item_stackable = item_stackable;
+     this.itemStackable = itemStackable;
      this.stage = stage;
+  }
+  make() {
+    let user = this.user? Object.values(this.user) : [];
+    let item = itemStackable(this.itemStackable);
+    let stage = this.stage? Object.values(this.stage) : [];
+
+    return [...user, ...item, ...stage];
   }
 }
 
@@ -41,32 +53,32 @@ class RandomMatchPlayStart {
 
 class RandomMatchPlayFinish {
     constructor(stage, item_stackable, my_rank) {
-        this.stage = stage;
-        this.item_stackable = item_stackable;
-        this.my_rank = my_rank;
+        this.my_rank = my_rank || -1;
+        this.stage = stage || [];
+        this.item_stackable = item_stackable || [];
     }
 }
 
 class FriendPlayStart {
-  constructor(room_key, player_info_list) {
-    this.room_key = room_key;
-    this.player_info_list = player_info_list;
+  constructor(roomKey, playerInfoList) {
+    this.roomKey = roomKey;
+    this.playerInfoList = playerInfoList;
  }
 }
 
 class FriendPlayFinish {
-  constructor(stage, item_stackable, my_rank) {
-    this.stage = stage;
-    this.item_stackable = item_stackable;
-    this.my_rank = my_rank;
+  constructor(stage, itemStackable, myRank) {
+    this.myRank = myRank || -1;
+    this.stage = stage || [];
+    this.itemStackable = itemStackable || [];
  }
 }
 
 class ForcePlayOut {}
 
 class MailList {
-  constructor(mail_list) {
-    this.mail_list = mail_list;
+  constructor(mailList) {
+    this.mailList = mailList;
  }
 }
 
@@ -78,5 +90,6 @@ module.exports = {
     RandomMatchPlayFinish,
   FriendPlayStart,
   FriendPlayFinish,
+  ForcePlayOut,
   MailList,
 }

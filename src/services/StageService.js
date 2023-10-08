@@ -6,12 +6,28 @@ const KeyValuesTable = require('../const/KeyValuesTable');
 const util = require("../utils/util");
 const log = require("../utils/logger");
 
+/*
+    한판 끝난 경기에대해 동일유저가 이겼다고 계속 오는거 금지 (2 시간동안) 
+    방 자체가 방 생성후.. 1시간 있다 폭파되기 때문에, 
+    2시간 금지가 풀리고 win 프로토콜이 와도 방이 없어 실패하고 다 막힘.
+*/
+const CheckSecAlreadyDone = 60*60*2; 
+
+/*
+    한판 끝난 경기에대해 둘 다 이겼다고 오는거 금지 (2 시간동안) 
+    방 자체가 방 생성후.. 1시간 있다 폭파되기 때문에, 
+    2시간 금지가 풀리고 win 프로토콜이 와도 방이 없어 실패하고 다 막힘.
+
+    둘 다 이겼다고 오면 워닝포인트를 올린다
+*/
+const CheckSecWinHack = 60*60*2; 
+
 class StageService {
     constructor(req) {
         this.req = req;
         this.userId = req.session.userId;
         this.shardId = req.session.shardId;
-        this.season = req.body.season;
+        this.season = req.session.season;
 
         this.myStageInfo = null;
         this.myItemStackableInfo = [];
@@ -22,7 +38,7 @@ class StageService {
     async finish(roomKey, isWin) {
         let { roomInfo, isDone } = await this.#getCacheInfo( roomKey );
 
-        this.#check( roomInfo, isWin, isDone );
+        await this.#check( roomInfo, roomKey, isWin, isDone );
 
         await this.#fetch( isWin );
 
@@ -33,35 +49,43 @@ class StageService {
 
             if (isWin) {
                 let newMyRank = this.#calcMyRank();
-                await cache.getGame().zAdd(this.rankingKey(this.season), newMyRank, this.userId);
+                await cache.getGame().zAdd(this.rankingKey(this.season), {score: newMyRank, value: this.userId});
             }
 
-            await cache.getGame().setEx(this.userDoneKey(roomKey), 3, 1); // ttl: 2 hours 60*60*2
+            await cache.getGame().setEx(this.userDoneKey(roomKey), CheckSecAlreadyDone, '1'); 
         }
     }
 
-    #check(roomInfo, isWin, isDone) {
+    async #check(roomInfo, roomKey, isWin, isDone) {
         if (!roomInfo) {
-            log.error(`FailedFriendPlayFinish. noExistRoom`);
+            log.error(this.req, `FailedPlayFinish. noExistRoom`);
             throw 100007; // 플레이한 룸 정보가 없다. 핵?
         }
 
         let found = roomInfo.findIndex((x) => x.user_id === this.userId);
         if (found === -1) {
-            log.error(`FailedFriendPlayFinish. I was not the player`);
+            log.error(this.req, `FailedPlayFinish. I was not the player`);
             throw 100008; // 내가 플레이한게 아닌데? 핵?
         }
 
         if (isDone) {
-            log.error(`FailedFriendPlayFinish. already finished`);
+            log.error(this.req, `FailedPlayFinish. already finished`);
             throw 100010; // 이미 종료된게임
         }
 
         if (isWin) {
             if (roomInfo.length === 1) {
-                log.error(`FailedFriendPlayFinish. player is only one. Invalid WIN`);
+                log.error(this.req, `FailedPlayFinish. player is only one. Invalid WIN`);
                 throw 100011; // 혼자 플레이하고 이길수없다
             }
+
+            let ret = await cache.getGame().set(this.chechWinHackKey(roomKey), '1');
+            if (ret === 0) {
+                log.error(this.req, `FailedPlayFinish. Already Who was Win`);
+                // 워닝 포인트 증가
+                // throw 100009; // 둘 다 승리할 수 없다 
+            }
+            await cache.getGame().expire(this.chechWinHackKey(roomKey), CheckSecWinHack);
         }
     }
 
@@ -75,12 +99,12 @@ class StageService {
             const { StageRow, ItemStackableRows } = await db.select(this.shardId, queries);
 
             if (StageRow.length === 0) {
-                log.error(`FailedFriendPlayFinish. NoExist StageDB`);
+                log.error(this.req, `FailedFriendPlayFinish. NoExist StageDB`);
                 throw 105;
             }
 
             if (ItemStackableRows.length === 0) {
-                log.error(`FailedFriendPlayFinish. NoExist ItemStackableDB`);
+                log.error(this.req, `FailedFriendPlayFinish. NoExist ItemStackableDB`);
                 throw 105;
             }
 
@@ -95,7 +119,7 @@ class StageService {
             const { StageRow } = await db.select(this.shardId, queries);
 
             if (StageRow.length === 0) {
-                log.error(`FailedFriendPlayFinish. NoExist StageDB`);
+                log.error(this.req, `FailedFriendPlayFinish. NoExist StageDB`);
                 throw 105;
             }
 
@@ -109,10 +133,10 @@ class StageService {
         if (isWin) {
             // score
             const addScore = KeyValuesTable.get('StageWinScore') || 0;
-            const newScore = this.myStageInfo.score + addScore;
-            const newWinCount = this.myStageInfo.win + 1;
+            this.myStageInfo.score += addScore;
+            this.myStageInfo.win += 1;
 
-            executeQueries.push([Queries.Stage.updateWin, [newWinCount, newScore, this.userId, this.season]]);
+            executeQueries.push([Queries.Stage.updateWin, [this.myStageInfo.win, this.myStageInfo.score, this.userId, this.season]]);
 
             // reward
             const rewardList = KeyValuesTable.get('StageWinReward') || [];
@@ -121,23 +145,26 @@ class StageService {
 
                 let rewardItemId = reward[0];
                 let rewardItemCount = reward[1];
+                let newItemCount = 0;
                 let found = this.myItemStackableInfo.findIndex((x) => x.item_id === rewardItemId);
                 if (found > -1) {
-                    let newItemCount = this.myItemStackableInfo[found].count + rewardItemCount;
+                    newItemCount = this.myItemStackableInfo[found].count + rewardItemCount;
                     executeQueries.push([Queries.ItemStackable.update, [newItemCount, this.userId, rewardItemId]]);
                 }
                 else {
-                    let newItemCount = rewardItemCount;
+                    newItemCount = rewardItemCount;
                     executeQueries.push([Queries.ItemStackable.insert, [newItemCount, this.userId, rewardItemId]]);
                 }
+
+                this.myItemStackableInfo[found].count = newItemCount;
             }
 
-            this.newWinCount = newWinCount;
+            this.newWinCount = this.myStageInfo.win;
         }
         else {
-            this.newLoseCount = this.myStageInfo.lose + 1;
+            this.myStageInfo.lose += 1;
 
-            executeQueries.push([Queries.Stage.updateLose, [this.newLoseCount, this.userId, this.season]]);
+            executeQueries.push([Queries.Stage.updateLose, [this.myStageInfo.lose, this.userId, this.season]]);
         }
 
         return executeQueries;
@@ -179,14 +206,17 @@ class StageService {
     async getMyRank(season) {
         let myRank = await cache.getGame().zRevRank(this.rankingKey(season), this.userId);
 
-        return (myRank !== null)? myRank : -1;
+        //let test = await this.getMyRankAndScore(season); 
+        //log.debug(this.userId + ", r: "+ test.myRank + ",s:" + test.myScore);
+
+        return (myRank !== null)? myRank + 1: -1;
     }
 
     async getMyRankAndScore(season) {
         const cacheKey = this.rankingKey(season);
 
         let [myRank, myScore] = await Promise.all([cache.getGame().zRevRank(cacheKey, this.userId), cache.getGame().zScore(cacheKey, this.userId)]);
-        myRank = (myRank !== null)? myRank : -1;
+        myRank = (myRank !== null)? myRank + 1 : -1;
         myScore = (myScore !== null)? Number(BigInt(myScore) >> 32n) : 0;
 
         return { myRank, myScore };
@@ -202,6 +232,10 @@ class StageService {
 
     userDoneKey(roomKey) {
         return `${roomKey}:${this.userId}`;
+    }
+
+    chechWinHackKey(roomKey) {
+        return `WH:${roomKey}`; // win hack
     }
 
     get stageInfo() {

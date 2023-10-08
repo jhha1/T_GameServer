@@ -1,4 +1,5 @@
 const msgpack = require('@ygoe/msgpack');
+const _ = require('lodash');
 const log = require('./logger');
 
 class response {
@@ -8,12 +9,26 @@ class response {
         this.#res = res;
     }
 
-    send (messageObj) {
-        log.info(`RES: ${messageObj}`);
+    make(args, result) {
+        if (_.isArray(args)) {
+            return args.map((x) => this.make(x, result));
+        } else if (_.isObject(args)) {
+            return Object.values(args).map((x) => this.make(x, result));
+        } else {
+            return result.push(args);
+        }
+    }
 
-        const encoded = msgpack.serialize(messageObj);
+    send (msgObj) {
+        //let msgArray = msgObj.make();
+        let msgArray = [];
+        this.make(msgObj, msgArray);
 
-        log.info(`encode:${encoded}, len:${encoded.length}, de:${msgpack.deserialize(encoded)}`);
+        log.info(this.#res.req, ` - [RES] {${JSON.stringify(msgObj)}}, [BIN] {${msgArray}}`);
+
+        const encoded = msgpack.serialize(msgArray);
+
+        log.debug(`encode:${encoded}, len:${encoded.length}, de:${msgpack.deserialize(encoded)}`);
 
         this.#res.writeHead(200, {
             'Content-Type': 'application/msgpack',
@@ -25,8 +40,8 @@ class response {
 
     error (err) {
         log.error(this.#res.req, err);
-        const encoded = msgpack.serialize(JSON.stringify(err));
-        return this.#res.send(encoded);
+        const encoded = msgpack.serialize(err);
+        this.#res.end(Buffer.from(encoded));
     }
 }
 
