@@ -11,7 +11,7 @@
 class AccountLogin {
   constructor(body) {
      this.platformType = body[0];
-     this.platformId = body[1];
+     this.accessToken = body[1];
   }
 }
 

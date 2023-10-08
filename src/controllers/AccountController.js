@@ -3,21 +3,26 @@ const UserService = require("../services/UserService");
 const session = require("../database/session");
 const reqMsg = require("../protocol/T_ReqProtocol_1");
 const resMsg = require("../protocol/T_ResProtocol_1");
+const { PlatformType } = require("../common/constValues");
 
 exports.AccountLogin = async (req, res, cb) => {
     try {
-        let { platformType, platformId } = new reqMsg.AccountLogin(req.body);
+        let { platformType, accessToken } = new reqMsg.AccountLogin(req.body);
 
-        let AccountServiceObj = new AccountService(req, platformType, platformId);
+        let service = new AccountService(req, platformType, accessToken);
+
+        if (platformType === PlatformType.Google) {
+            await service.authGoogle();
+        }
         
-        let AccountRow = await AccountServiceObj.getAccount();
+        let AccountRow = await service.getAccount();
         if (AccountRow.length === 0) {
             // 계정
-            const { shardId, newUserId, newAccountQuery } = await AccountServiceObj.createAccountQuery();
+            const { shardId, newUserId, newAccountQuery } = await service.createAccountQuery();
             // 유저
             const newUserQuery = new UserService(req).createUser(shardId, newUserId);
             // 한 트랙잭션으로 계정,유저처리.
-            AccountRow = await AccountServiceObj.createAccountAndUser(shardId, newAccountQuery, newUserQuery);
+            AccountRow = await service.createAccountAndUser(shardId, newAccountQuery, newUserQuery);
         }
         AccountRow = AccountRow[0];
 

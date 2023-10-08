@@ -2,15 +2,17 @@ const db = require('../database/db');
 const moment = require("moment");
 const cluster = require("cluster");
 const os = require("os");
+const GoogleOAuth = require('../database/google/googleOAuth');
 const Queries = require('../queries/mapper');
 const { PlatformType, DeviceType, DBName } = require('../common/constValues');
 const log = require("../utils/logger");
 
 class AccountService {
-    constructor(req, platformType, platformId) {
+    constructor(req, platformType, accessToken) {
         this.req = req;
         this.platformType = Number(platformType);
-        this.platformId = platformId;
+        this.accessToken = accessToken;
+        this.platformId = null;
     }
 
     get getPlatformType() {
@@ -19,6 +21,15 @@ class AccountService {
 
     get getPlatformId() {
         return this.platformId;
+    }
+
+    async authGoogle() {
+        try {
+            this.platformId = await GoogleOAuth.auth(this.accessToken);
+        } catch (e) {
+            log.error(this.req, `액세스 토큰 검증 오류: ${e.message}`);
+            throw 107;
+        }
     }
 
     async getAccount() {

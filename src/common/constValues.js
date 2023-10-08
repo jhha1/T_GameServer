@@ -19,8 +19,7 @@ const constValues = {
 
     PlatformType: {
         Guest: 1,
-        Google: 2,
-        FaceBook: 3
+        Google: 2
     },
 
     DeviceType: {
