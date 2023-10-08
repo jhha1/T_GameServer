@@ -11,14 +11,17 @@ exports.AccountLogin = async (req, res, cb) => {
 
         let service = new AccountService(req, platformType, accessToken);
 
+        let platformId = '';
         if (platformType === PlatformType.Google) {
-            await service.authGoogle();
+            platformId = await service.authGoogle();
+        } else if (platformType === PlatformType.Guest) {
+            platformId = service.getGuestPlatformId();
         }
         
-        let AccountRow = await service.getAccount();
+        let AccountRow = await service.getAccount(platformId);
         if (AccountRow.length === 0) {
             // 계정
-            const { shardId, newUserId, newAccountQuery } = await service.createAccountQuery();
+            const { shardId, newUserId, newAccountQuery } = await service.createAccountQuery(platformId);
             // 유저
             const newUserQuery = new UserService(req).createUser(shardId, newUserId);
             // 한 트랙잭션으로 계정,유저처리.

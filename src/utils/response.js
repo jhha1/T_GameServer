@@ -32,7 +32,8 @@ class response {
 
         this.#res.writeHead(200, {
             'Content-Type': 'application/msgpack',
-            'Content-Length': encoded.length
+            'Content-Length': encoded.length,
+            'Error-Code': 0
         });
 
         this.#res.end(Buffer.from(encoded));
@@ -41,6 +42,13 @@ class response {
     error (err) {
         log.error(this.#res.req, err);
         const encoded = msgpack.serialize(err);
+
+        this.#res.writeHead(200, {
+            'Content-Type': 'application/msgpack',
+            'Content-Length': encoded.length,
+            'error-Code': err
+        });
+
         this.#res.end(Buffer.from(encoded));
     }
 }

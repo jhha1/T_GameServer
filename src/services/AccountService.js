@@ -4,6 +4,7 @@ const cluster = require("cluster");
 const os = require("os");
 const GoogleOAuth = require('../database/google/googleOAuth');
 const Queries = require('../queries/mapper');
+const util = require('../utils/util');
 const { PlatformType, DeviceType, DBName } = require('../common/constValues');
 const log = require("../utils/logger");
 
@@ -25,16 +26,27 @@ class AccountService {
 
     async authGoogle() {
         try {
-            this.platformId = await GoogleOAuth.auth(this.accessToken);
+            const userId = await GoogleOAuth.auth(this.accessToken);
+            return`g2${userId}`;
         } catch (e) {
             log.error(this.req, `액세스 토큰 검증 오류: ${e.message}`);
             throw 107;
         }
     }
+    
+    getGuestPlatformId() {
+        return this.accessToken; // guest는 token에 고유id를 보낸다
+    }
 
-    async getAccount() {
+    createGuestId() {
+        let dt = moment.utc().format('x');
+        let rand = util.sysRangeRand(10, 99);
+        this.platformId = `g1${dt}${rand}`;
+    }
+
+    async getAccount(platformId) {
         let query = [
-            ["AccountRow", Queries.Account.select, [this.platformType, this.platformId]]
+            ["AccountRow", Queries.Account.select, [this.platformType, platformId]]
         ];
 
         let { AccountRow } = await db.select(DBName.Auth, query);
@@ -98,13 +110,11 @@ class AccountService {
         return NewAccountRow;
     }
 
-    async createAccountQuery(){
+    async createAccountQuery(platformId){
         switch (this.platformType) {
             case PlatformType.Google:
-            case PlatformType.FaceBook:
                 break;
             case PlatformType.Guest:
-                // ... platformId가 디바이스넘버
                 break;
             default :
                 log.error(this.req, `UnSupportedPlatformType:${this.platformType}`);
@@ -114,9 +124,12 @@ class AccountService {
         let shardId = await this.getShardId();
         let newUserId = this.#createNewUserId(shardId);
         let newAccountQuery = [
-            [Queries.Account.insert, [this.platformType, this.platformId, newUserId, DeviceType.aos, shardId]],
+            [Queries.Account.insert, [this.platformType, platformId, newUserId, DeviceType.aos, shardId]],
             [Queries.ShardStatus.increaseUserCount, [shardId]]
         ];
+
+        this.platformId = platformId; // todo
+
         return { shardId, newUserId, newAccountQuery };
     }
 
