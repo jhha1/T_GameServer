@@ -42,12 +42,22 @@ class RoomInfo {
         this.room_key = room_key;
         this.player_info_list = player_info_list;
     }
+    make() {
+      let p1 = Object.values(this.player_info_list[0]);
+      let p2 = this.player_info_list[1]? Object.values(this.player_info_list[1]) : [];
+      return [this.roomKey, ...p1, ...p2];
+    }
 }
 
 class RandomMatchPlayStart {
     constructor(room_key, player_info_list) {
         this.room_key = room_key;
         this.player_info_list = player_info_list;
+    }
+    make() {
+      let p1 = Object.values(this.player_info_list[0]);
+      let p2 = this.player_info_list[1]? Object.values(this.player_info_list[1]) : [];
+      return [this.roomKey, ...p1, ...p2];
     }
 }
 
@@ -57,6 +67,9 @@ class RandomMatchPlayFinish {
         this.stage = stage || [];
         this.item_stackable = item_stackable || [];
     }
+    make() {
+      return [this.my_rank, this.stage, this.item_stackable[0], this.item_stackable[1]];
+    }
 }
 
 class FriendPlayStart {
@@ -64,6 +77,11 @@ class FriendPlayStart {
     this.roomKey = roomKey;
     this.playerInfoList = playerInfoList;
  }
+ make() {
+  let p1 = Object.values(this.playerInfoList[0]);
+  let p2 = this.playerInfoList[1]? Object.values(this.playerInfoList[1]) : [];
+  return [this.roomKey, p1, p2];
+}
 }
 
 class FriendPlayFinish {
@@ -72,6 +90,9 @@ class FriendPlayFinish {
     this.stage = stage || [];
     this.itemStackable = itemStackable || [];
  }
+ make() {
+  return [this.myRank, this.stage, this.itemStackable[0], this.itemStackable[1]];
+}
 }
 
 class ForcePlayOut {}

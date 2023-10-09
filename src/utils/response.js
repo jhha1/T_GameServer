@@ -20,9 +20,9 @@ class response {
     }
 
     send (msgObj) {
-        //let msgArray = msgObj.make();
-        let msgArray = [];
-        this.make(msgObj, msgArray);
+        let msgArray = msgObj.make();
+        //let msgArray = [];
+        //this.make(msgObj, msgArray);
 
         log.info(this.#res.req, ` - [RES] {${JSON.stringify(msgObj)}}, [BIN] {${msgArray}}`);
 
