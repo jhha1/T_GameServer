@@ -10,7 +10,7 @@
 
 function itemStackable(args) {
   if (!args) return [];
-  return args.flatMap(arg => Object.values(arg));
+  return Object.values(args);
 }
 
 class AccountLogin {
@@ -30,45 +30,47 @@ class UserLogin {
   }
   make() {
     let user = this.user? Object.values(this.user) : [];
-    let item = itemStackable(this.itemStackable);
+    let item = this.itemStackable;
     let stage = this.stage? Object.values(this.stage) : [];
 
-    return [...user, ...item, ...stage];
+    return [user, Object.values(item[0]), Object.values(item[1]), stage];
   }
 }
 
 class RoomInfo {
-    constructor(room_key, player_info_list) {
-        this.room_key = room_key;
+    constructor(roomKey, player_info_list) {
+        this.roomKey = roomKey;
         this.player_info_list = player_info_list;
     }
     make() {
       let p1 = Object.values(this.player_info_list[0]);
       let p2 = this.player_info_list[1]? Object.values(this.player_info_list[1]) : [];
-      return [this.roomKey, ...p1, ...p2];
+      return [this.roomKey, p1, p2];
     }
 }
 
 class RandomMatchPlayStart {
-    constructor(room_key, player_info_list) {
-        this.room_key = room_key;
+    constructor(roomKey, player_info_list) {
+        this.roomKey = roomKey;
         this.player_info_list = player_info_list;
     }
     make() {
-      let p1 = Object.values(this.player_info_list[0]);
+      let p1 = this.player_info_list[0]? Object.values(this.player_info_list[0]) : [];
       let p2 = this.player_info_list[1]? Object.values(this.player_info_list[1]) : [];
-      return [this.roomKey, ...p1, ...p2];
+      return [this.roomKey, p1, p2];
     }
 }
 
 class RandomMatchPlayFinish {
-    constructor(stage, item_stackable, my_rank) {
+    constructor(stage, itemStackable, my_rank) {
         this.my_rank = my_rank || -1;
         this.stage = stage || [];
-        this.item_stackable = item_stackable || [];
+        this.itemStackable = itemStackable || [];
     }
     make() {
-      return [this.my_rank, this.stage, this.item_stackable[0], this.item_stackable[1]];
+      let p1 = this.itemStackable[0]? Object.values(this.itemStackable[0]) : [];
+      let p2 = this.itemStackable[1]? Object.values(this.itemStackable[1]) : [];
+      return [this.my_rank, Object.values(this.stage), p1, p2];
     }
 }
 
@@ -91,7 +93,7 @@ class FriendPlayFinish {
     this.itemStackable = itemStackable || [];
  }
  make() {
-  return [this.myRank, this.stage, this.itemStackable[0], this.itemStackable[1]];
+  return [this.myRank, Object.values(this.stage), Object.values(this.itemStackable[0]), Object.values(this.itemStackable[1])];
 }
 }
 

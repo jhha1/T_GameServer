@@ -9,13 +9,13 @@ class response {
         this.#res = res;
     }
 
-    make(args, result) {
+    make(args, r) {
         if (_.isArray(args)) {
-            return args.map((x) => this.make(x, result));
+            return r.push(r);
         } else if (_.isObject(args)) {
-            return Object.values(args).map((x) => this.make(x, result));
+            return Object.values(args).map((x) => this.make(x, r));
         } else {
-            return result.push(args);
+            return args;
         }
     }
 
