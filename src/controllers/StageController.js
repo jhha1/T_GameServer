@@ -7,16 +7,14 @@ const cache = require('../database/cache');
 const log = require("../utils/logger");
 
 exports.RoomInfo = async (req, res, cb) => {
-    const { roomKey } = req.body;
+    const { room_key } = req.body;
 
     try {
-       // const { roomKey } = new reqMsg.RoomInfo(req.body);
-
         const service = new StageService(req);
 
-        const roomInfo = await service.getRoomInfo(roomKey) || [];
+        const roomInfo = await service.getRoomInfo(room_key) || [];
 
-        return new resMsg.RoomInfo(roomKey, roomInfo);
+        return new resMsg.RoomInfo(room_key, roomInfo);
 
     } catch (e) {
         throw e;
@@ -24,12 +22,10 @@ exports.RoomInfo = async (req, res, cb) => {
 }
 
 exports.RandomMatchPlayStart = async (req, res, cb) => {
-    const { myIp } = req.body;
+    const { my_ip } = req.body;
 
     try {
-        //const { myIp } = new reqMsg.RandomMatchPlayStart(req.body);
-
-        const service = new MatchRandomService(req, myIp);
+        const service = new MatchRandomService(req, my_ip);
 
         await service.matching();
 
@@ -41,15 +37,14 @@ exports.RandomMatchPlayStart = async (req, res, cb) => {
 }
 
 exports.RandomMatchPlayFinish = async (req, res, cb) => {
-    const { roomKey, isWin } = req.body;
-    //const { roomKey, isWin } = new reqMsg.RandomMatchPlayFinish(req.body);
+    const { room_key, is_win } = req.body;
 
     try {
         const service = new StageService(req);
 
         await lock(); // 동시성 제어를 위한 락
 
-        await service.finish(roomKey, isWin);
+        await service.finish(room_key, is_win);
 
         await unlock();
 
@@ -79,11 +74,10 @@ exports.RandomMatchPlayFinish = async (req, res, cb) => {
 }
 
 exports.FriendPlayStart = async (req, res, cb) => {
-    const { roomName, myIp } = req.body;
-    //const { roomName, myIp } = new reqMsg.FriendPlayStart(req.body);
+    const { room_name, my_ip } = req.body;
 
     try {
-        const service = new MatchFriendService(req, roomName, myIp);
+        const service = new MatchFriendService(req, room_name, my_ip);
 
         service.checkRoomName(); 
 
@@ -125,20 +119,19 @@ exports.FriendPlayStart = async (req, res, cb) => {
     }
 
     function lockKey(){
-        return `FL:${roomName}`; // FL: friend lock
+        return `FL:${room_name}`; // FL: friend lock
     }
 }
 
 exports.FriendPlayFinish = async (req, res, cb) => {
-    const { roomKey, isWin } = req.body;
-    //const { roomKey, isWin } = new reqMsg.FriendPlayFinish(req.body);
+    const { room_key, is_win } = req.body;
 
     try {
         const service = new StageService(req);
 
         await lock(); // 동시성 제어를 위한 락
 
-        await service.finish(roomKey, isWin);
+        await service.finish(room_key, is_win);
 
         await unlock(); 
 
@@ -168,10 +161,9 @@ exports.FriendPlayFinish = async (req, res, cb) => {
 }
 
 exports.ForcePlayOut = async (req, res, cb) => {
-    const { roomKey } = req.body;
+    const { room_key } = req.body;
     try {
-        //const { roomKey } = new reqMsg.ForcePlayOut(req.body);
-
+        
         return new resMsg.ForcePlayOut();
 
     } catch (e) {

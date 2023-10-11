@@ -10,32 +10,32 @@
 
 class AccountLogin {
   constructor(platformType, platformId, userId, deviceType, isLeave) {
-     this.platformType = platformType;
-     this.platformId = platformId;
-     this.userId = userId;
-     this.deviceType = deviceType;
-     this.isLeave = isLeave;
+     this.platform_type = platformType;
+     this.platform_id = platformId;
+     this.user_id = userId;
+     this.device_type = deviceType;
+     this.is_leave = isLeave;
   }
 }
 
 class UserLogin {
   constructor(user, itemStackable, stage) {
      this.user = user;
-     this.itemStackable = itemStackable;
+     this.item_stackable = itemStackable;
      this.stage = stage;
   }
 }
 
 class RoomInfo {
     constructor(roomKey, player_info_list) {
-        this.roomKey = roomKey;
+        this.room_key = roomKey;
         this.player_info_list = player_info_list;
     }
 }
 
 class RandomMatchPlayStart {
     constructor(roomKey, player_info_list) {
-        this.roomKey = roomKey;
+        this.room_key = roomKey;
         this.player_info_list = player_info_list;
     }
 }
@@ -44,22 +44,22 @@ class RandomMatchPlayFinish {
     constructor(stage, itemStackable, my_rank) {
         this.my_rank = my_rank || -1;
         this.stage = stage || [];
-        this.itemStackable = itemStackable || [];
+        this.item_stackable = itemStackable || [];
     }
 }
 
 class FriendPlayStart {
   constructor(roomKey, playerInfoList) {
-    this.roomKey = roomKey;
-    this.playerInfoList = playerInfoList;
+    this.room_key = roomKey;
+    this.player_info_list = playerInfoList;
  }
 }
 
 class FriendPlayFinish {
   constructor(stage, itemStackable, myRank) {
-    this.myRank = myRank || -1;
+    this.my_rank = myRank || -1;
     this.stage = stage || [];
-    this.itemStackable = itemStackable || [];
+    this.item_stackable = itemStackable || [];
  }
 }
 
@@ -67,7 +67,7 @@ class ForcePlayOut {}
 
 class MailList {
   constructor(mailList) {
-    this.mailList = mailList;
+    this.mail_list = mailList;
  }
 }
 

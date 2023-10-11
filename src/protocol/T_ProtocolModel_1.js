@@ -10,16 +10,16 @@
 
 class User {
   constructor() {
-     this.user_id = ""
+     this.userId = ""
      this.nickname = ""
-     this.is_leave = 0;
-     this.last_login_dt = 0;
-     this.created_dt = 0;
+     this.isLeave = 0;
+     this.lastLoginDt = 0;
+     this.createdDt = 0;
 }};
 
 class ItemStackable {
   constructor() {
-     this.item_id = 0;
+     this.itemId = 0;
      this.count = 0;
 }};
 
@@ -37,7 +37,7 @@ class PlayerInfo {
 
 class Stage {
   constructor() {
-     this.user_id = '';
+     this.userId = '';
      this.season = '';
      this.score = 0;
      this.win = 0;

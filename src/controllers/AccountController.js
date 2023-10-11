@@ -6,15 +6,15 @@ const resMsg = require("../protocol/T_ResProtocol_1");
 const { PlatformType } = require("../common/constValues");
 
 exports.AccountLogin = async (req, res, cb) => {
-    const { platformType, accessToken } = req.body;
+    const { platform_type, access_token } = req.body;
 
     try {
-        let service = new AccountService(req, platformType, accessToken);
+        let service = new AccountService(req, platform_type, access_token);
 
         let platformId = '';
-        if (platformType === PlatformType.Google) {
+        if (platform_type === PlatformType.Google) {
             platformId = await service.authGoogle();
-        } else if (platformType === PlatformType.Guest) {
+        } else if (platform_type === PlatformType.Guest) {
             platformId = service.getGuestPlatformId();
         }
         
