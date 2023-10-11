@@ -6,9 +6,9 @@ const resMsg = require("../protocol/T_ResProtocol_1");
 const { PlatformType } = require("../common/constValues");
 
 exports.AccountLogin = async (req, res, cb) => {
-    try {
-        let { platformType, accessToken } = new reqMsg.AccountLogin(req.body);
+    const { platformType, accessToken } = req.body;
 
+    try {
         let service = new AccountService(req, platformType, accessToken);
 
         let platformId = '';

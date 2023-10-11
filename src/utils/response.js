@@ -20,20 +20,20 @@ class response {
     }
 
     send (msgObj) {
-        let msgArray = msgObj.make();
+        let msgArray = msgObj;
         //let msgArray = [];
         //this.make(msgObj, msgArray);
 
-        log.info(this.#res.req, ` - [RES] {${JSON.stringify(msgObj)}}, [BIN] {${msgArray}}`);
+        log.info(this.#res.req, ` - [RES] {${JSON.stringify(msgObj)}}`);
 
-        const encoded = msgpack.serialize(msgArray);
+        const encoded = msgpack.serialize(msgObj);
 
         log.debug(`encode:${encoded}, len:${encoded.length}, de:${msgpack.deserialize(encoded)}`);
 
         this.#res.writeHead(200, {
             'Content-Type': 'application/msgpack',
             'Content-Length': encoded.length,
-            'Error-Code': 0
+            'error-Code': 0
         });
 
         this.#res.end(Buffer.from(encoded));

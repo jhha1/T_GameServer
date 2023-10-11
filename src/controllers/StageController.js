@@ -7,8 +7,10 @@ const cache = require('../database/cache');
 const log = require("../utils/logger");
 
 exports.RoomInfo = async (req, res, cb) => {
+    const { roomKey } = req.body;
+
     try {
-        const { roomKey } = new reqMsg.RoomInfo(req.body);
+       // const { roomKey } = new reqMsg.RoomInfo(req.body);
 
         const service = new StageService(req);
 
@@ -22,8 +24,10 @@ exports.RoomInfo = async (req, res, cb) => {
 }
 
 exports.RandomMatchPlayStart = async (req, res, cb) => {
+    const { myIp } = req.body;
+
     try {
-        const { myIp } = new reqMsg.RandomMatchPlayStart(req.body);
+        //const { myIp } = new reqMsg.RandomMatchPlayStart(req.body);
 
         const service = new MatchRandomService(req, myIp);
 
@@ -37,7 +41,8 @@ exports.RandomMatchPlayStart = async (req, res, cb) => {
 }
 
 exports.RandomMatchPlayFinish = async (req, res, cb) => {
-    const { roomKey, isWin } = new reqMsg.RandomMatchPlayFinish(req.body);
+    const { roomKey, isWin } = req.body;
+    //const { roomKey, isWin } = new reqMsg.RandomMatchPlayFinish(req.body);
 
     try {
         const service = new StageService(req);
@@ -74,7 +79,8 @@ exports.RandomMatchPlayFinish = async (req, res, cb) => {
 }
 
 exports.FriendPlayStart = async (req, res, cb) => {
-    const { roomName, myIp } = new reqMsg.FriendPlayStart(req.body);
+    const { roomName, myIp } = req.body;
+    //const { roomName, myIp } = new reqMsg.FriendPlayStart(req.body);
 
     try {
         const service = new MatchFriendService(req, roomName, myIp);
@@ -124,7 +130,8 @@ exports.FriendPlayStart = async (req, res, cb) => {
 }
 
 exports.FriendPlayFinish = async (req, res, cb) => {
-    const { roomKey, isWin } = new reqMsg.FriendPlayFinish(req.body);
+    const { roomKey, isWin } = req.body;
+    //const { roomKey, isWin } = new reqMsg.FriendPlayFinish(req.body);
 
     try {
         const service = new StageService(req);
@@ -161,8 +168,9 @@ exports.FriendPlayFinish = async (req, res, cb) => {
 }
 
 exports.ForcePlayOut = async (req, res, cb) => {
+    const { roomKey } = req.body;
     try {
-        const { roomKey } = new reqMsg.ForcePlayOut(req.body);
+        //const { roomKey } = new reqMsg.ForcePlayOut(req.body);
 
         return new resMsg.ForcePlayOut();
 
