@@ -86,6 +86,8 @@ class UserService {
     }
 
     async changeIconFree( icon_id ) {
+        log.info(`id:${icon_id}, list:${ConstTables.Icon.iconIdList()}`);
+
         let found = ConstTables.Icon.iconIdList().findIndex((id) => Number(id) === Number(icon_id));
         if (found === -1) {
             log.error(this.req, `FailedChangeIcon. NoExistIcon. icon_id:${icon_id}`);
