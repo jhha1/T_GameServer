@@ -27,6 +27,24 @@ class UserLogin {
   }
 }
 
+class UserChangeNicknameFree {
+    constructor(user) {
+        this.user = user;
+    }
+}
+
+class UserChangeNicknameBuy {
+    constructor(user) {
+        this.user = user;
+    }
+}
+
+class UserChangIconFree {
+    constructor(user) {
+        this.user = user;
+    }
+}
+
 class RoomInfo {
     constructor(roomKey, player_info_list) {
         this.room_key = roomKey;
@@ -73,13 +91,16 @@ class MailList {
 }
 
 module.exports = {
-  AccountLogin,
-  UserLogin,
+    AccountLogin,
+    UserLogin,
+    UserChangeNicknameFree,
+    UserChangeNicknameBuy,
+    UserChangIconFree,
     RoomInfo,
     RandomMatchPlayStart,
     RandomMatchPlayFinish,
-  FriendPlayStart,
-  FriendPlayFinish,
+    FriendPlayStart,
+    FriendPlayFinish,
     ForceRoomQuit,
-  MailList,
+    MailList,
 }

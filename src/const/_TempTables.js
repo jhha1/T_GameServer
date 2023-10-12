@@ -110,6 +110,9 @@ module.exports = {
             {id:2, key:'UserCreateHero', value:1, type:1 /* primitive */},
             {id:3, key:'UserCreateItemEquip', value:[[200001, 1],[200002, 1]], type:2},
             {id:3, key:'UserCreateItemStackable', value:[[100001, 10000],[100002, 100]], type:2},
+            {id:4, key:'NicknameFreeChangeLimit', value:1, type:1 /* primitive */},
+            {id:5, key:'NicknameLengthLimit', value:15, type:1 /* primitive */},
+            {id:6, key:'RoomNameLengthLimit', value:10, type:1 /* primitive */},
         ];
         CONST_TABLE["ItemStackble"] = [
             {id:100001, kind:1},
@@ -120,14 +123,13 @@ module.exports = {
             {id:100006, kind:4},
             {id:100007, kind:6},
         ];
-        CONST_TABLE["ItemEquip"] = [
-            {id:200001, kind:1, grade:1},
-            {id:200002, kind:1, grade:1},
-            {id:200003, kind:1, grade:2},
-            {id:200004, kind:1, grade:3},
-            {id:200005, kind:2, grade:1},
-            {id:200006, kind:2, grade:2},
-            {id:200007, kind:2, grade:3},
+        CONST_TABLE["Icon"] = [
+            {id:200001},
+            {id:200002},
+            {id:200003},
+            {id:200004},
+            {id:200005},
+            {id:200006},
         ];
         CONST_TABLE["ItemEquipLevelUp"] = [
             {id:1, grade:1, level:1, piece_count:2},
@@ -174,6 +176,7 @@ CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `shard_id` int NOT NULL,
   `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default 'No name',
+   nickname_change_cnt int DEFAULT 0,
    emote_id int DEFAULT 1,
   `is_leave` int DEFAULT '0',
   `last_login_dt` bigint DEFAULT '0',
@@ -218,6 +221,7 @@ CREATE TABLE `User` (
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `shard_id` int NOT NULL,
   `nickname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin default 'No name',
+  nickname_change_cnt int DEFAULT 0,
    emote_id int DEFAULT 1,
   `is_leave` int DEFAULT '0',
   `last_login_dt` bigint DEFAULT '0',

@@ -80,6 +80,14 @@ async function execute(dbName, queries) {
     }
 }
 
+function escape(value) {
+    if (typeof value === 'string') {
+        return mysql.escape(value);
+    }
+
+    return value;
+}
+
 async function insertWithReturnUID(dbName, query) {
     if (!dbName || !query || query.length === 0) {
         throw `디비질의실패. 매개변수확인. db:${dbName}, queries:${query}`;
@@ -149,4 +157,5 @@ function getConnection(dbName) {
 exports.connect = connect;
 exports.select = select;
 exports.execute = execute;
+exports.escape = escape;
 exports.insertWithReturnUID = insertWithReturnUID;

@@ -5,6 +5,7 @@ const Queries = require('../queries/mapper');
 const ConstValues = require('../common/constValues');
 const util = require('../utils/util');
 const log = require("../utils/logger");
+const ConstTables = require("../const/mapper");
 
 const roomNameRegex = /^[a-zA-Z0-9]+$/;
 
@@ -20,9 +21,9 @@ class MatchFriendService {
     }
 
     checkRoomName(){
-        if (this.roomName.length > 12) {
+        if (this.roomName.length > ConstTables.KeyValues.get('RoomNameLengthLimit')) {
             log.error(`FailedCreateFriendRoom. InvalidRoomNameLength:${this.roomName}`);
-            return 100001; // 최대 12자
+            return 100001; // 최대 n자
         }
 
         if (!roomNameRegex.test(this.roomName)) {
