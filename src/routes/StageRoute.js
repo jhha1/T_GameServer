@@ -6,7 +6,7 @@ module.exports.routes = {
     "/RandomMatchPlayFinish": StageController.RandomMatchPlayFinish,
     "/FriendPlayStart": StageController.FriendPlayStart,
     "/FriendPlayFinish": StageController.FriendPlayFinish,
-    "/ForcePlayOut": StageController.ForcePlayOut,
+    "/ForceRoomQuit": StageController.ForceRoomQuit,
 }
 
 

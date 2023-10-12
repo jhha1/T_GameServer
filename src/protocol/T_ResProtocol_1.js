@@ -9,12 +9,13 @@
 //------------------------------------------------------------------------------
 
 class AccountLogin {
-  constructor(platformType, platformId, userId, deviceType, isLeave) {
-     this.platform_type = platformType;
-     this.platform_id = platformId;
-     this.user_id = userId;
-     this.device_type = deviceType;
-     this.is_leave = isLeave;
+  constructor(account, isFirst) {
+     this.platform_type = account.platform_type;
+     this.platform_id = account.platform_id;
+     this.user_id = account.user_id;
+     this.device_type = account.device_type;
+     this.is_leave = account.is_leave;
+     this.is_first = isFirst ? 1 : 0;
   }
 }
 
@@ -63,7 +64,7 @@ class FriendPlayFinish {
  }
 }
 
-class ForcePlayOut {}
+class ForceRoomQuit {}
 
 class MailList {
   constructor(mailList) {
@@ -79,6 +80,6 @@ module.exports = {
     RandomMatchPlayFinish,
   FriendPlayStart,
   FriendPlayFinish,
-  ForcePlayOut,
+    ForceRoomQuit,
   MailList,
 }

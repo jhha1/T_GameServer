@@ -81,6 +81,10 @@ class MatchFriendService {
         this.roomKey = roomKey;
     }
 
+    async deleteMatch() {
+        await cache.getGame().del(this.matchKey);
+    }
+
     async getMyInfo() {
         let query = [
             ["UserRow", Queries.User.selectByUserId, [this.userId]],

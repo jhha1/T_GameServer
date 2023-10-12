@@ -52,7 +52,7 @@ class FriendPlayFinish {
  }
 }
 
-class ForcePlayOut {
+class ForceRoomQuit {
     constructor(body) {
         this.roomKey = body[0];
     }
@@ -69,6 +69,6 @@ module.exports = {
     RandomMatchPlayFinish,
   FriendPlayStart,
   FriendPlayFinish,
-  ForcePlayOut,
+    ForceRoomQuit,
   MailList,
 }

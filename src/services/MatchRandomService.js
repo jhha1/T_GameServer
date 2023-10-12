@@ -47,6 +47,19 @@ class MatchRandomService {
         this.playerInfos.push(matchTarget);
     }
 
+    async deleteMeFromWaitingQueue() {
+        let waitingUser = await cache.getGame().rPop(this.queueKey);
+        if (waitingUser) {
+            waitingUser = JSON.parse(waitingUser);
+            if (waitingUser.user_id === this.userId) {
+                ; // 대기큐에 있던게 나면 이미 pop 으로 삭제됫음.
+            } else {
+                // 대기큐에 있던게 딴애면 다시 큐에 넣어줌. 나는 삭제 못함.
+                await cache.getGame().lPush(this.queueKey, JSON.stringify(waitingUser));
+            }
+        }
+    }
+
     async getMyInfo() {
         let query = [
             ["UserRow", Queries.User.selectByUserId, [this.userId]],

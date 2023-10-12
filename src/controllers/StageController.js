@@ -1,8 +1,8 @@
 const MatchFriendService = require('../services/MatchFriendService');
 const MatchRandomService = require('../services/MatchRandomService');
 const StageService = require('../services/StageService');
-const reqMsg = require("../protocol/T_ReqProtocol_1");
-const resMsg = require("../protocol/T_ResProtocol_1");
+const ConstValues = require('../common/constValues');
+const msg = require("../protocol/T_ResProtocol_1");
 const cache = require('../database/cache');
 const log = require("../utils/logger");
 
@@ -14,7 +14,7 @@ exports.RoomInfo = async (req, res, cb) => {
 
         const roomInfo = await service.getRoomInfo(room_key) || [];
 
-        return new resMsg.RoomInfo(room_key, roomInfo);
+        return new msg.RoomInfo(room_key, roomInfo);
 
     } catch (e) {
         throw e;
@@ -29,7 +29,7 @@ exports.RandomMatchPlayStart = async (req, res, cb) => {
 
         await service.matching();
 
-        return new resMsg.RandomMatchPlayStart(service.uniqueRoomKey, service.playerList);
+        return new msg.RandomMatchPlayStart(service.uniqueRoomKey, service.playerList);
 
     } catch (e) {
         throw e;
@@ -48,7 +48,7 @@ exports.RandomMatchPlayFinish = async (req, res, cb) => {
 
         await unlock();
 
-        return new resMsg.RandomMatchPlayFinish(service.stageInfo, service.itemStackableInfo, await service.rankInfo());
+        return new msg.RandomMatchPlayFinish(service.stageInfo, service.itemStackableInfo, await service.rankInfo());
 
     } catch (e) {
         if (e !== 106) await unlock();
@@ -56,12 +56,12 @@ exports.RandomMatchPlayFinish = async (req, res, cb) => {
     }
 
     async function lock() {
-        let ret = await cache.getGame().setEx(lockKey(), 60, '1'); // key, value
+        let ret = await cache.getGame().setNX(lockKey(), '1'); // key, value
         if (ret === 0) {
             log.error(`RandomMatchPlayFinish.  (loocked)`);
             throw 106;
         }
-        await cache.getGame().expire(lockKey(), 60);
+        await cache.getGame().expire(lockKey(), ConstValues.Cache.LockTTL);
     }
 
     async function unlock() {
@@ -93,7 +93,7 @@ exports.FriendPlayStart = async (req, res, cb) => {
 
         await unlock(); 
 
-        return new resMsg.FriendPlayStart(service.uniqueRoomKey, service.playerList);
+        return new msg.FriendPlayStart(service.uniqueRoomKey, service.playerList);
 
     } catch (e) {
         // 방이름 체크 & 락 예외를 제외한 모든 예외는 락키를 푼다.
@@ -106,12 +106,12 @@ exports.FriendPlayStart = async (req, res, cb) => {
 
     async function lock() {
         let a = lockKey();
-        let ret = await cache.getGame().setEx(lockKey(), 60, '1'); // key, value
+        let ret = await cache.getGame().setNX(lockKey(), '1'); // key, value
         if (ret === 0) {
             log.error(`FailedCreateFriendRoom. room is busy..(loocked)`);
             throw 100003; // 룸 생성중 or 조인중
         }
-        await cache.getGame().expire(lockKey(), 60);
+        await cache.getGame().expire(lockKey(), ConstValues.Cache.LockTTL);
     }
 
     async function unlock() {
@@ -135,7 +135,7 @@ exports.FriendPlayFinish = async (req, res, cb) => {
 
         await unlock(); 
 
-        return new resMsg.FriendPlayFinish(service.stageInfo, service.itemStackableInfo, await service.rankInfo());
+        return new msg.FriendPlayFinish(service.stageInfo, service.itemStackableInfo, await service.rankInfo());
 
     } catch (e) {
         if (e !== 106) await unlock();
@@ -143,12 +143,12 @@ exports.FriendPlayFinish = async (req, res, cb) => {
     }
 
     async function lock() {
-        let ret = await cache.getGame().setEx(lockKey(), 60, '1'); // key, value
+        let ret = await cache.getGame().setNX(lockKey(), '1'); // key, value
         if (ret === 0) {
             log.error(`FailedFriendPlayFinish.  (loocked)`);
             throw 106; 
         }
-        await cache.getGame().expire(lockKey(), 60);
+        await cache.getGame().expire(lockKey(), ConstValues.Cache.LockTTL);
     }
 
     async function unlock() {
@@ -160,11 +160,18 @@ exports.FriendPlayFinish = async (req, res, cb) => {
     }
 }
 
-exports.ForcePlayOut = async (req, res, cb) => {
-    const { room_key } = req.body;
+exports.ForceRoomQuit = async (req, res, cb) => {
+    const { type, room_name } = req.body;
     try {
-        
-        return new resMsg.ForcePlayOut();
+        if (type === ConstValues.Stage.Type.Friend) {
+            const service = new MatchFriendService(req, room_name, '');
+            await service.deleteMatch();
+        }
+        else if (type === ConstValues.Stage.Type.Random) {
+            const service = new MatchRandomService(req, '');
+            await service.deleteMeFromWaitingQueue();
+        }
+        return new msg.ForceRoomQuit();
 
     } catch (e) {
         throw e;
