@@ -203,11 +203,11 @@ class StageService {
         let userIdList = [];
         let list = await cache.getGame().sendCommand(['zrevrange', key, '0', '99', 'withscores']);
         if (list) {
-            for (let i = 0; i < list.length; i += 2) {
+            for (let i = 0, rank = 1; i < list.length; i += 2, rank++) {
                 let userId = list[i];
                 let score = Number(BigInt(list[i+1]) >> 32n) || 0;
 
-                rankList[userId] = {user_id:userId, rank:i+1, score:score};
+                rankList[userId] = {user_id:userId, rank:rank, score:score};
                 userIdList.push(userId);
             }
         }
