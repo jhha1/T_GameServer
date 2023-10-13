@@ -38,7 +38,7 @@ class UserService {
     createUser(shardId, userId) {
         const now = moment.utc().format('x');
 
-        let heroInitData = ConstTables.KeyValues.get("UserCreateHero");
+        let initScore = ConstTables.KeyValues.get("CharacterInitScore") || 10000;
         let itemStackableInitData = ConstTables.KeyValues.get("UserCreateItemStackable");
         let itemStackableQueryData = (itemStackableInitData)? itemStackableInitData.flatMap(data => [userId, ...data]) : [];
 
@@ -49,7 +49,7 @@ class UserService {
 
         let newUserQuery = [
             [Queries.User.insert, [userId, shardId, now, now]],
-            [Queries.Stage.insert, [userId, curSeason, 0, 0, 0]]
+            [Queries.Stage.insert, [userId, curSeason, initScore, 0, 0]]
         ];
         if (itemStackableQueryData.length > 0) newUserQuery.push([Queries.ItemStackable.insertMany(itemStackableInitData.length), itemStackableQueryData]);
 

@@ -26,6 +26,16 @@ function initializeConfig() {
         value: CONFIG,
         writable: false,
     });
+
+    let shardIdList = [];
+    const ShardConfig = CONFIG['rdb'].list.game.hostList;
+    for (let id = 0; id < ShardConfig.length; id++) {
+        shardIdList.push(id + 1);
+    }
+    Object.defineProperty(global, 'ShardIdList', {
+        value: shardIdList,
+        writable: false,
+    });
 }
 
 function loadConfig() {

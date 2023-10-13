@@ -21,6 +21,22 @@ exports.RoomInfo = async (req, res, cb) => {
     }
 }
 
+exports.RankInfo = async (req, res, cb) => {
+    const { season, rank_type } = req.body;
+
+    try {
+        const service = new StageService(req);
+
+        const rankInfo = await service.getRankInfo(season, rank_type) || [];
+
+        return new msg.RankInfo(season, rankInfo);
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+
 exports.RandomMatchPlayStart = async (req, res, cb) => {
     const { my_ip } = req.body;
 

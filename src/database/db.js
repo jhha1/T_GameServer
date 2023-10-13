@@ -138,6 +138,7 @@ function _connectMysql() {
             let _config = _.cloneDeep(gameDBConfig);
             _config.host = gameDBList[i];
             _config.database = `${_config.database}${i+1}`;
+            _config['namedPlaceholders'] = true;
             delete _config.hostList;
 
             dbGameConnectionPool[i+1] = mysql.createPool(_config);

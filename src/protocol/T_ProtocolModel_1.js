@@ -23,6 +23,16 @@ class ItemStackable {
      this.count = 0;
 }};
 
+class Rank {
+    constructor() {
+        this.user_id = '';
+        this.rank = 0;
+        this.score = 0;
+        this.nickname = '';
+        this.icon_id = 0;
+    }
+};
+
 class PlayerInfo {
   constructor() {
      this.user_id = '';

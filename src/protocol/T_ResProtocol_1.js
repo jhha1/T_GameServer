@@ -52,6 +52,13 @@ class RoomInfo {
     }
 }
 
+class RankInfo {
+    constructor(season, rank_list) {
+        this.season = season;
+        this.rank_list = rank_list;
+    }
+}
+
 class RandomMatchPlayStart {
     constructor(roomKey, player_info_list) {
         this.room_key = roomKey;
@@ -97,6 +104,7 @@ module.exports = {
     UserChangeNicknameBuy,
     UserChangIconFree,
     RoomInfo,
+    RankInfo,
     RandomMatchPlayStart,
     RandomMatchPlayFinish,
     FriendPlayStart,

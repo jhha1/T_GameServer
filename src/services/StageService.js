@@ -3,6 +3,7 @@ const db = require('../database/db');
 const Queries = require('../queries/mapper');
 const cache = require('../database/cache');
 const KeyValuesTable = require('../const/KeyValuesTable');
+const ConstValues = require('../common/constValues');
 const util = require("../utils/util");
 const log = require("../utils/logger");
 
@@ -31,7 +32,7 @@ class StageService {
 
         this.myStageInfo = null;
         this.myItemStackableInfo = [];
-        this.newWinCount = 0;
+        this.newScore = 0;
         this.newLoseCount = 0;
     }
 
@@ -79,7 +80,7 @@ class StageService {
                 throw 100011; // 혼자 플레이하고 이길수없다
             }
 
-            let ret = await cache.getGame().set(this.chechWinHackKey(roomKey), '1');
+            let ret = await cache.getGame().setNX(this.chechWinHackKey(roomKey), '1');
             if (ret === 0) {
                 log.error(this.req, `FailedPlayFinish. Already Who was Win`);
                 // 워닝 포인트 증가
@@ -159,12 +160,15 @@ class StageService {
                 this.myItemStackableInfo[found].count = newItemCount;
             }
 
-            this.newWinCount = this.myStageInfo.win;
+            this.newScore = this.myStageInfo.score;
         }
         else {
+            const loseScore = KeyValuesTable.get('StageLoseScore') || 0;
+            this.myStageInfo.score -= loseScore;
+            if (this.myStageInfo.score < 0) this.myStageInfo.score = 0;
             this.myStageInfo.lose += 1;
 
-            executeQueries.push([Queries.Stage.updateLose, [this.myStageInfo.lose, this.userId, this.season]]);
+            executeQueries.push([Queries.Stage.updateLose, [this.myStageInfo.lose, this.myStageInfo.score, this.userId, this.season]]);
         }
 
         return executeQueries;
@@ -173,7 +177,7 @@ class StageService {
     #calcMyRank() {
         const now = moment.utc().format('x');
         const buf = Buffer.allocUnsafe(8);
-        buf.writeUInt32BE(this.newWinCount, 0);
+        buf.writeUInt32BE(this.newScore, 0);
         buf.writeUInt32BE(util.INT_MAX - now / 1000, 4);
         return Number(buf.readBigUInt64BE(0));
     }
@@ -187,6 +191,44 @@ class StageService {
         }
 
         return null;
+    }
+
+    async getRankInfo(season, rankType) {
+        let key = null;
+        if (Number(rankType) === ConstValues.Rank.Type.Score) {
+            key = this.rankingKey(season);
+        }
+
+        let rankList = {};
+        let userIdList = [];
+        let list = await cache.getGame().sendCommand(['zrevrange', key, '0', '99', 'withscores']);
+        if (list) {
+            for (let i = 0; i < list.length; i += 2) {
+                let userId = list[i];
+                let score = Number(BigInt(list[i+1]) >> 32n) || 0;
+
+                rankList[userId] = {user_id:userId, rank:i+1, score:score};
+                userIdList.push(userId);
+            }
+        }
+
+        const placeholders = userIdList.map(() => '?').join(',');
+        let queries = [
+            ["User", Queries.User.selectByUserIdList(placeholders), userIdList]
+        ];
+
+        const userInfoList = await Promise.all(
+            ShardIdList.map((shardId) => db.select(shardId, queries)),
+        );
+
+        for (let shard of userInfoList) {
+            for (let info of shard['User']) {
+                rankList[info.user_id].nickname = info.nickname;
+                rankList[info.user_id].icon_id = info.emote_id;
+            }
+        }
+
+        return Object.values(rankList);
     }
 
     async #getCacheInfo(roomKey) {

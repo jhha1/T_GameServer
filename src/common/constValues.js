@@ -51,6 +51,13 @@ const constValues = {
             Random: 2
         },
     },
+
+    Rank: {
+        Type: {
+            Score: 1,
+            WinStreak: 2
+        },
+    },
 }
 
 module.exports = constValues;
