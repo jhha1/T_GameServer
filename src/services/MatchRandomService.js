@@ -22,11 +22,15 @@ class MatchRandomService {
         let matchTarget = await cache.getGame().rPop(this.queueKey);
         if (!matchTarget) {
             await cache.getGame().lPush(this.queueKey, JSON.stringify(me));
+
+            this.playerInfos.push(me);
         }
         else {
             matchTarget = JSON.parse(matchTarget);
             if (matchTarget.user_id === this.userId) {
                 await cache.getGame().lPush(this.queueKey, JSON.stringify(me));
+
+                this.playerInfos.push(me);
             }
             else {
                 await this.createRoom(me, matchTarget);
