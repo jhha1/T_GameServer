@@ -193,7 +193,7 @@ class StageService {
         return null;
     }
 
-    async getRankInfo(season, rankType) {
+    async getTopRankList(season, rankType) {
         let key = null;
         if (Number(rankType) === ConstValues.Rank.Type.Score) {
             key = this.rankingKey(season);
@@ -231,6 +231,27 @@ class StageService {
         return Object.values(rankList);
     }
 
+    async getMyRankInfo(season) {
+        const cacheKey = this.rankingKey(season);
+
+        let [ myRank, myScore ] = await Promise.all([cache.getGame().zRevRank(cacheKey, this.userId), cache.getGame().zScore(cacheKey, this.userId)]);
+
+        let myRankInfo = {};
+        myRankInfo['userId'] = this.userId;
+        myRankInfo['rank'] = (myRank !== null)? myRank + 1 : 0;
+        myRankInfo['score'] = (myScore !== null)? Number(BigInt(myScore) >> 32n) : 0;
+        myRankInfo['nickname'] = this.req.session.nickname;
+        myRankInfo['icon_id'] = this.req.session.iconId;
+
+        return { myRankInfo };
+    }
+
+    async getMyRank(season) {
+        let myRank = await cache.getGame().zRevRank(this.rankingKey(season), this.userId);
+
+        return (myRank !== null)? myRank + 1: 0;
+    }
+
     async #getCacheInfo(roomKey) {
         if (!roomKey) return null;
 
@@ -243,25 +264,6 @@ class StageService {
         }
 
         return { roomInfo, isDone };
-    }
-
-    async getMyRank(season) {
-        let myRank = await cache.getGame().zRevRank(this.rankingKey(season), this.userId);
-
-        //let test = await this.getMyRankAndScore(season); 
-        //log.debug(this.userId + ", r: "+ test.myRank + ",s:" + test.myScore);
-
-        return (myRank !== null)? myRank + 1: -1;
-    }
-
-    async getMyRankAndScore(season) {
-        const cacheKey = this.rankingKey(season);
-
-        let [myRank, myScore] = await Promise.all([cache.getGame().zRevRank(cacheKey, this.userId), cache.getGame().zScore(cacheKey, this.userId)]);
-        myRank = (myRank !== null)? myRank + 1 : -1;
-        myScore = (myScore !== null)? Number(BigInt(myScore) >> 32n) : 0;
-
-        return { myRank, myScore };
     }
 
     rankingKey(season) {

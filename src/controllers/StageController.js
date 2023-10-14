@@ -27,9 +27,10 @@ exports.RankInfo = async (req, res, cb) => {
     try {
         const service = new StageService(req);
 
-        const rankInfo = await service.getRankInfo(season, rank_type) || [];
+        const rankInfo = await service.getTopRankList(season, rank_type) || [];
+        const myRankInfo = await service.getMyRankInfo(season) || {};
 
-        return new msg.RankInfo(season, rankInfo);
+        return new msg.RankInfo(season, rankInfo, myRankInfo);
 
     } catch (e) {
         throw e;

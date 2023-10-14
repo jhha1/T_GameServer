@@ -15,6 +15,7 @@ class AccountLogin {
      this.user_id = account.user_id;
      this.device_type = account.device_type;
      this.is_leave = account.is_leave;
+     this.lang = account.lang;
      this.is_first = isFirst ? 1 : 0;
   }
 }
@@ -53,9 +54,10 @@ class RoomInfo {
 }
 
 class RankInfo {
-    constructor(season, rank_list) {
+    constructor(season, rank_list, my_rank) {
         this.season = season;
         this.rank_list = rank_list;
+        this.my_rank_info = my_rank;
     }
 }
 

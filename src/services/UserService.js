@@ -1,7 +1,7 @@
 const Queries = require('../queries/mapper');
 const moment = require("moment");
 const ConstTables = require("../const/mapper");
-const ConstValues = require("../common/constValues");
+const util = require("../utils/util");
 const log = require("../utils/logger");
 const db = require("../database/db");
 
@@ -35,9 +35,11 @@ class UserService {
         return this.#UserRow;
     }
 
-    createUser(shardId, userId) {
+    async createUser(shardId, userId) {
         const now = moment.utc().format('x');
 
+        let initIconId = util.sysRangeRand(Math.min(...ConstTables.Icon.iconIdList()), Math.max(...ConstTables.Icon.iconIdList())); // icon random.
+        let initNickname = ConstTables.KeyValues.get("CharacterInitNickname") || "NoName";
         let initScore = ConstTables.KeyValues.get("CharacterInitScore") || 10000;
         let itemStackableInitData = ConstTables.KeyValues.get("UserCreateItemStackable");
         let itemStackableQueryData = (itemStackableInitData)? itemStackableInitData.flatMap(data => [userId, ...data]) : [];
@@ -48,12 +50,13 @@ class UserService {
         let curSeason = ConstTables.KeyValues.get('CurrentSeason') || 0;
 
         let newUserQuery = [
-            [Queries.User.insert, [userId, shardId, now, now]],
+           // [Queries.User.insert, [userId, shardId, initIconId, initNickname, now, now]],
+           [Queries.User.insert, [userId, shardId, now, now]],
             [Queries.Stage.insert, [userId, curSeason, initScore, 0, 0]]
         ];
         if (itemStackableQueryData.length > 0) newUserQuery.push([Queries.ItemStackable.insertMany(itemStackableInitData.length), itemStackableQueryData]);
 
-        return newUserQuery;
+        await db.execute(shardId, newUserQuery);
     }
 
     async changeNicknameFree( newNickname ) {
@@ -78,6 +81,8 @@ class UserService {
 
         await db.execute(this.shardId, query);
 
+        req.session.nickname = newNickname; 
+
         return UserRow;
     }
 
@@ -85,24 +90,26 @@ class UserService {
         return await this.getUser();
     }
 
-    async changeIconFree( icon_id ) {
-        log.info(`id:${icon_id}, list:${ConstTables.Icon.iconIdList()}`);
+    async changeIconFree( iconId ) {
+        log.info(`id:${iconId}, list:${ConstTables.Icon.iconIdList()}`);
 
-        let found = ConstTables.Icon.iconIdList().findIndex((id) => Number(id) === Number(icon_id));
+        let found = ConstTables.Icon.iconIdList().findIndex((id) => Number(id) === Number(iconId));
         if (found === -1) {
-            log.error(this.req, `FailedChangeIcon. NoExistIcon. icon_id:${icon_id}`);
+            log.error(this.req, `FailedChangeIcon. NoExistIcon. iconId:${iconId}`);
             throw 100101; // 존재하지 않는 아이콘으로 변경 불가
         }
 
         let UserRow = await this.getUser();
 
-        UserRow.emote_id = icon_id;
+        UserRow.emote_id = iconId;
 
         let query = [
-            [Queries.User.updateEmote, [icon_id, this.userId]],
+            [Queries.User.updateEmote, [iconId, this.userId]],
         ];
 
         await db.execute(this.shardId, query);
+
+        req.session.iconId = iconId; 
 
         return UserRow;
     }

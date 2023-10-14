@@ -8,7 +8,7 @@ const log = require("../utils/logger");
 const ConstValues = require("../common/constValues");
 
 exports.AccountLogin = async (req, res, cb) => {
-    const { platform_type, access_token } = req.body;
+    const { platform_type, access_token, lang } = req.body;
 
     try {
         let service = new AccountService(req, platform_type, access_token);
@@ -26,17 +26,24 @@ exports.AccountLogin = async (req, res, cb) => {
         let AccountRow = await service.getAccount(platformId);
         if (AccountRow.length === 0) {
             // 계정
-            const { shardId, newUserId, newAccountQuery } = await service.createAccountQuery(platformId);
-            // 유저
-            const newUserQuery = new UserService(req).createUser(shardId, newUserId);
-            // 한 트랙잭션으로 계정,유저처리.
-            AccountRow = await service.createAccountAndUser(shardId, newAccountQuery, newUserQuery);
+            const { shardId, newUserId, NewAccountRow } = await service.createAccount(platformId, lang);
 
-            isAccountCreateUser = true;
+            AccountRow = NewAccountRow;
+
+            // 유저
+            try {
+                const newUser = new UserService(req).createUser(shardId, newUserId);
+
+                await session.init(req, AccountRow[0], newUser[0]);
+
+                isAccountCreateUser = true;
+
+            } catch (err) {
+                await service.rollbackAccount(platformId);
+                throw 108; // 계정 생성 실패
+            }
         }
         AccountRow = AccountRow[0];
-
-        await session.init(req, AccountRow);
 
         await unlock();
 
