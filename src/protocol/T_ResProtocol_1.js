@@ -91,6 +91,12 @@ class FriendPlayFinish {
  }
 }
 
+class UseItemForChangeShape {
+    constructor(itemStackable) {
+        this.item_stackable = itemStackable || {};
+    }
+}
+
 class ForceRoomQuit {}
 
 class MailList {
@@ -112,5 +118,6 @@ module.exports = {
     FriendPlayStart,
     FriendPlayFinish,
     ForceRoomQuit,
+    UseItemForChangeShape,
     MailList,
 }

@@ -8,6 +8,7 @@ module.exports.routes = {
     "/FriendPlayStart": StageController.FriendPlayStart,
     "/FriendPlayFinish": StageController.FriendPlayFinish,
     "/ForceRoomQuit": StageController.ForceRoomQuit,
+    "/UseItemForChangeShape": StageController.UseItemForChangeShape,
 }
 
 

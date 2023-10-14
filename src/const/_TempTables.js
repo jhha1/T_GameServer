@@ -113,6 +113,7 @@ module.exports = {
             {id:4, key:'NicknameFreeChangeLimit', value:1, type:1 /* primitive */},
             {id:5, key:'NicknameLengthLimit', value:15, type:1 /* primitive */},
             {id:6, key:'RoomNameLengthLimit', value:10, type:1 /* primitive */},
+            {id:7, key:'ChangeShapeUseItem', value:[[100001, 5]], type:2},
         ];
         CONST_TABLE["ItemStackble"] = [
             {id:100001, kind:1},
@@ -165,6 +166,7 @@ CREATE TABLE `Account` (
   `platform_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `device_type` int DEFAULT '0' COMMENT 'aos:1, ios:2',
+  lang varchar(4) default 'en',
   `is_leave` int DEFAULT '0' COMMENT 'join:0, leave:1',
   `shard_id` int NOT NULL,
   PRIMARY KEY (`seq`),

@@ -1,7 +1,9 @@
 const MatchFriendService = require('../services/MatchFriendService');
 const MatchRandomService = require('../services/MatchRandomService');
 const StageService = require('../services/StageService');
+const ItemService = require('../services/ItemService');
 const ConstValues = require('../common/constValues');
+const KeyValuesTable = require('../const/KeyValuesTable');
 const msg = require("../protocol/T_ResProtocol_1");
 const cache = require('../database/cache');
 const log = require("../utils/logger");
@@ -174,6 +176,28 @@ exports.FriendPlayFinish = async (req, res, cb) => {
 
     function lockKey(){
         return `FFL:${req.session.user_id}`; // FFL: friend finish lock
+    }
+}
+
+exports.UseItemForChangeShape = async (req, res, cb) => {
+    try {
+        const useItem = KeyValuesTable.get('ChangeShapeUseItem') || null;
+        if (!useItem) {
+            log.error(this.req, `FailedChangeShape. NoExist useItemInfo.`);
+            throw 104; // 기획데이터 이상
+        }
+
+        const useItemId = useItem[0][0];
+        const useItemCount = useItem[0][1];
+
+        const service = new ItemService(req);
+
+        const haveItemResult = await service.itemUseOnly(useItemId, useItemCount, {decr:true});
+
+        return new msg.UseItemForChangeShape(haveItemResult);
+
+    } catch (e) {
+        throw e;
     }
 }
 

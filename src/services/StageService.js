@@ -174,14 +174,6 @@ class StageService {
         return executeQueries;
     }
 
-    #calcMyRank() {
-        const now = moment.utc().format('x');
-        const buf = Buffer.allocUnsafe(8);
-        buf.writeUInt32BE(this.newScore, 0);
-        buf.writeUInt32BE(util.INT_MAX - now / 1000, 4);
-        return Number(buf.readBigUInt64BE(0));
-    }
-
     async getRoomInfo(roomKey) {
         if (!roomKey) return null;
 
@@ -264,6 +256,14 @@ class StageService {
         }
 
         return { roomInfo, isDone };
+    }
+
+    #calcMyRank() {
+        const now = moment.utc().format('x');
+        const buf = Buffer.allocUnsafe(8);
+        buf.writeUInt32BE(this.newScore, 0);
+        buf.writeUInt32BE(util.INT_MAX - now / 1000, 4);
+        return Number(buf.readBigUInt64BE(0));
     }
 
     rankingKey(season) {
