@@ -134,8 +134,8 @@ class StageService {
         if (isWin) {
             // score
             const addScore = KeyValuesTable.get('StageWinScore') || 0;
-            this.myStageInfo.score += addScore;
-            this.myStageInfo.win += 1;
+            this.myStageInfo.score = Number(this.myStageInfo.score) + Number(addScore);
+            this.myStageInfo.win = Number(this.myStageInfo.win) + 1;
 
             executeQueries.push([Queries.Stage.updateWin, [this.myStageInfo.win, this.myStageInfo.score, this.userId, this.season]]);
 
@@ -164,9 +164,9 @@ class StageService {
         }
         else {
             const loseScore = KeyValuesTable.get('StageLoseScore') || 0;
-            this.myStageInfo.score -= loseScore;
+            this.myStageInfo.score = Number(this.myStageInfo.score) + Number(loseScore);
             if (this.myStageInfo.score < 0) this.myStageInfo.score = 0;
-            this.myStageInfo.lose += 1;
+            this.myStageInfo.lose = Number(this.myStageInfo.lose) + 1;
 
             executeQueries.push([Queries.Stage.updateLose, [this.myStageInfo.lose, this.myStageInfo.score, this.userId, this.season]]);
         }
@@ -243,7 +243,7 @@ class StageService {
         myRankInfo['nickname'] = this.req.session.nickname;
         myRankInfo['icon_id'] = this.req.session.iconId;
 
-        return { myRankInfo };
+        return myRankInfo;
     }
 
     async getMyRank(season) {

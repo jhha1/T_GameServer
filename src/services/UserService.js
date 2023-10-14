@@ -50,13 +50,20 @@ class UserService {
         let curSeason = ConstTables.KeyValues.get('CurrentSeason') || 0;
 
         let newUserQuery = [
-           // [Queries.User.insert, [userId, shardId, initIconId, initNickname, now, now]],
-           [Queries.User.insert, [userId, shardId, now, now]],
+            [Queries.User.insert, [userId, shardId, initIconId, initNickname, now, now]],
             [Queries.Stage.insert, [userId, curSeason, initScore, 0, 0]]
         ];
         if (itemStackableQueryData.length > 0) newUserQuery.push([Queries.ItemStackable.insertMany(itemStackableInitData.length), itemStackableQueryData]);
 
         await db.execute(shardId, newUserQuery);
+
+        // 유저 생성 확인
+        let query = [
+            ["newUser", Queries.User.selectByUserId, [userId]]
+        ];
+        let { newUser } = await db.select(shardId, query);
+
+        return newUser;
     }
 
     async changeNicknameFree( newNickname ) {

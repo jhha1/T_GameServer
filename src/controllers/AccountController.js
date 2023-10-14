@@ -32,13 +32,15 @@ exports.AccountLogin = async (req, res, cb) => {
 
             // 유저
             try {
-                const newUser = new UserService(req).createUser(shardId, newUserId);
+                const userService = new UserService(req);
+                const newUser = await userService.createUser(shardId, newUserId);
 
                 await session.init(req, AccountRow[0], newUser[0]);
 
                 isAccountCreateUser = true;
 
             } catch (err) {
+                log.error(err);
                 await service.rollbackAccount(platformId);
                 throw 108; // 계정 생성 실패
             }

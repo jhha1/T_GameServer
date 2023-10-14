@@ -70,7 +70,7 @@ class RandomMatchPlayStart {
 
 class RandomMatchPlayFinish {
     constructor(stage, itemStackable, my_rank) {
-        this.my_rank = my_rank || -1;
+        this.my_rank = my_rank || 0;
         this.stage = stage || [];
         this.item_stackable = itemStackable || [];
     }
@@ -85,7 +85,7 @@ class FriendPlayStart {
 
 class FriendPlayFinish {
   constructor(stage, itemStackable, myRank) {
-    this.my_rank = myRank || -1;
+    this.my_rank = myRank || 0;
     this.stage = stage || [];
     this.item_stackable = itemStackable || [];
  }
