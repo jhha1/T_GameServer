@@ -1,16 +1,18 @@
 const cache = require('./cache');
 const log = require('../utils/logger'); 
 
-async function initSession(req, Account) {
+async function initSession(req, Account, User) {
     req.session.platformType = Account.platform_type;
     req.session.platformId = Account.platform_id;
     req.session.userId = Account.user_id;
     req.session.shardId = Account.shard_id;
     req.session.deviceType = Account.device_type;
+    req.session.lang = Account.lang;
     req.session.isLeave = Account.is_leave;
+    req.session.nickname = User.nickname;
+    req.session.iconId = User.emote_id;
 
-    //await cache.getGame().setEx(getTokenKey(req.session.platformId), 60*30, req.sessionID); // session token
-    await cache.getGame().setEx(getTokenKey(req.session.platformId), 60*300, req.sessionID); // session token
+    await cache.getGame().setEx(getTokenKey(req.session.platformId), 60*60*24, req.sessionID); // session token
 }
 
 async function deleteSession(token) {

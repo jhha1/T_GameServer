@@ -92,9 +92,28 @@ class AccountService {
         return minRow.shard_id;
     }
 
-    async createAccountAndUser(shardId, newAccountQuery, newUserQuery) {
+    async createAccount(platformId, lang){
+        switch (this.platformType) {
+            case PlatformType.Google:
+                break;
+            case PlatformType.Guest:
+                break;
+            default :
+                log.error(this.req, `UnSupportedPlatformType:${this.platformType}`);
+                throw 10001;
+        }
+
+        // 계정 생성 
+        let shardId = await this.getShardId();
+        let newUserId = this.#createNewUserId(shardId);
+        let newAccountQuery = [
+            [Queries.Account.insert, [this.platformType, platformId, newUserId, DeviceType.aos, shardId, lang]],
+            [Queries.ShardStatus.increaseUserCount, [shardId]]
+        ];
+
+        this.platformId = platformId; // todo
+
         await db.execute(DBName.Auth, newAccountQuery);
-        await db.execute(shardId, newUserQuery);
 
         // 계정 생성 확인
         let selectQuery = [
@@ -107,30 +126,15 @@ class AccountService {
             throw 10002;
         }
 
-        return NewAccountRow;
+        return { shardId, newUserId, NewAccountRow };
     }
 
-    async createAccountQuery(platformId){
-        switch (this.platformType) {
-            case PlatformType.Google:
-                break;
-            case PlatformType.Guest:
-                break;
-            default :
-                log.error(this.req, `UnSupportedPlatformType:${this.platformType}`);
-                throw 10001;
-        }
-
-        let shardId = await this.getShardId();
-        let newUserId = this.#createNewUserId(shardId);
-        let newAccountQuery = [
-            [Queries.Account.insert, [this.platformType, platformId, newUserId, DeviceType.aos, shardId]],
-            [Queries.ShardStatus.increaseUserCount, [shardId]]
+    async rollbackAccount(platformId) {
+        let query = [
+            [Queries.Account.delete, [this.platformType, platformId]]
         ];
 
-        this.platformId = platformId; // todo
-
-        return { shardId, newUserId, newAccountQuery };
+        await db.execute(DBName.Auth, query);
     }
 
     #createNewUserId(dbShardId) {
