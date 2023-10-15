@@ -202,7 +202,9 @@ class StageService {
                 rankList[userId] = {user_id:userId, rank:rank, score:score};
                 userIdList.push(userId);
             }
+        }
 
+        if (userIdList.length > 0) {
             const placeholders = userIdList.map(() => '?').join(',');
             let queries = [
                 ["User", Queries.User.selectByUserIdList(placeholders), userIdList]
