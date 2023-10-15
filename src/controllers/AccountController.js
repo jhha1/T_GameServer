@@ -15,7 +15,7 @@ exports.AccountLogin = async (req, res, cb) => {
 
         let platformId = '';
         if (platform_type === PlatformType.Google) {
-            platformId = await service.authGoogle();
+            platformId = await service.authFirebase();
         } else if (platform_type === PlatformType.Guest) {
             platformId = service.getGuestPlatformId();
         }

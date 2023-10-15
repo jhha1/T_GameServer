@@ -2,6 +2,7 @@
 /config
 /logs
 nodeproject-google.json
+google-firebase-tower.json
 /.idea
 /.vscode
 /docker

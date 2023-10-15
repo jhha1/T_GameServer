@@ -3,6 +3,7 @@ const moment = require("moment");
 const cluster = require("cluster");
 const os = require("os");
 const GoogleOAuth = require('../database/google/googleOAuth');
+const googleOAuthFirebase = require('../database/google/googleOAuthFirebase');
 const Queries = require('../queries/mapper');
 const util = require('../utils/util');
 const { PlatformType, DeviceType, DBName } = require('../common/constValues');
@@ -27,6 +28,16 @@ class AccountService {
     async authGoogle() {
         try {
             const userId = await GoogleOAuth.auth(this.accessToken);
+            return`g2${userId}`;
+        } catch (e) {
+            log.error(this.req, `액세스 토큰 검증 오류: ${e.message}`);
+            throw 107;
+        }
+    }
+
+    async authFirebase() {
+        try {
+            const userId = await googleOAuthFirebase.auth(this.accessToken);
             return`g2${userId}`;
         } catch (e) {
             log.error(this.req, `액세스 토큰 검증 오류: ${e.message}`);
