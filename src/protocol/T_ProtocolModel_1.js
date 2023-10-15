@@ -21,9 +21,9 @@ class User {
 };
 
 class ItemStackable {
-  constructor() {
-     this.itemId = 0;
-     this.count = 0;
+  constructor(item) {
+     this.item_id = item.item_id;
+     this.count = item.count;
 }};
 
 class Rank {
