@@ -32,7 +32,7 @@ async function update(req) {
 
 
 function getKey(platformId) {
-    return `sess:${platformId}`;
+    return `udata:${platformId}`;
 }
 
 /*
