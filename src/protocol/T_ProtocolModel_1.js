@@ -16,7 +16,7 @@ class User {
      this.emote_id = user.emote_id;
      this.is_leave = user.is_leave;
      this.last_login_dt = user.last_login_dt;
-     this.create_dt = user.create_dt;
+     this.created_dt = user.created_dt;
   }
 };
 
