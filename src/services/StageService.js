@@ -26,9 +26,9 @@ const CheckSecWinHack = 60*60*2;
 class StageService {
     constructor(req) {
         this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
-        this.season = req.session.season;
+        this.userId = req.data.userId;
+        this.shardId = req.data.shardId;
+        this.season = req.data.season;
 
         this.myStageInfo = null;
         this.myItemStackableInfo = [];
@@ -232,8 +232,8 @@ class StageService {
         myRankInfo['userId'] = this.userId;
         myRankInfo['rank'] = (myRank !== null)? myRank + 1 : 0;
         myRankInfo['score'] = (myScore !== null)? Number(BigInt(myScore) >> 32n) : 0;
-        myRankInfo['nickname'] = this.req.session.nickname;
-        myRankInfo['icon_id'] = this.req.session.iconId;
+        myRankInfo['nickname'] = this.req.data.nickname;
+        myRankInfo['icon_id'] = this.req.data.iconId;
 
         return myRankInfo;
     }

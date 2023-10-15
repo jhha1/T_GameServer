@@ -6,8 +6,8 @@ const log = require("../utils/logger");
 class MailService {
     constructor(req) {
         this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
+        this.userId = req.data.userId;
+        this.shardId = req.data.shardId;
     }
 
     async getMailList() {

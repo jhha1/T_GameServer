@@ -11,8 +11,8 @@ class UserService {
 
     constructor(req) {
         this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
+        this.userId = req.data?.userId;
+        this.shardId = req.data?.shardId;
 
         this.#UserRow = null;
     }
@@ -88,7 +88,7 @@ class UserService {
 
         await db.execute(this.shardId, query);
 
-        req.session.nickname = newNickname; 
+        this.req.data.nickname = newNickname; 
 
         return UserRow;
     }
@@ -116,7 +116,7 @@ class UserService {
 
         await db.execute(this.shardId, query);
 
-        req.session.iconId = iconId; 
+        this.req.data.iconId = iconId; 
 
         return UserRow;
     }

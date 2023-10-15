@@ -20,8 +20,6 @@ exports.AccountLogin = async (req, res, cb) => {
             platformId = service.getGuestPlatformId();
         }
 
-        await lock(); // 동시성 제어를 위한 락
-
         let isAccountCreateUser = false;
         let AccountRow = await service.getAccount(platformId);
         if (AccountRow.length === 0) {
@@ -35,7 +33,7 @@ exports.AccountLogin = async (req, res, cb) => {
                 const userService = new UserService(req);
                 const newUser = await userService.createUser(shardId, newUserId);
 
-                await session.init(req, AccountRow[0], newUser[0]);
+                await session.init(req, platformId, AccountRow[0], newUser[0]);
 
                 isAccountCreateUser = true;
 
@@ -46,31 +44,14 @@ exports.AccountLogin = async (req, res, cb) => {
             }
         }
         AccountRow = AccountRow[0];
-
-        await unlock();
+        
+        // 재 계정로긴에서 세션에 빈값 업어쓰는거 방지
+        req.data.save = false;
 
         return  new msg.AccountLogin(AccountRow, isAccountCreateUser);
 
     } catch (e) {
-        if (e !== 106) await unlock();
         throw e;
-    }
-
-    async function lock() {
-        let ret = await cache.getGame().setNX(lockKey(), '1'); // key, value
-        if (ret === 0) {
-            log.error(`AccountLogin.  (loocked)`);
-            throw 106;
-        }
-        await cache.getGame().expire(lockKey(), ConstValues.Cache.LockTTL);
-    }
-
-    async function unlock() {
-        await cache.getGame().del(lockKey());
-    }
-
-    function lockKey(){
-        return `AL:${req.session.user_id}`; // AL: account lock
     }
 }
 

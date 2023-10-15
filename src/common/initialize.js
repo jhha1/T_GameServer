@@ -168,7 +168,7 @@ async function doLogic(req, res, next, fn) {
 
         const result = await fn(req, res, next); // controller logic
 
-        postProcess.filter(req, res);
+        await postProcess.filter(req, res);
 
         return response.send(result);
     } catch (e) {

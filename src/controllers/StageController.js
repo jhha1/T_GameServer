@@ -88,7 +88,7 @@ exports.RandomMatchPlayFinish = async (req, res, cb) => {
     }
 
     function lockKey(){
-        return `RFL:${req.session.user_id}`; // RFL : random finish lock
+        return `RFL:${req.data.user_id}`; // RFL : random finish lock
     }
 }
 
@@ -175,7 +175,7 @@ exports.FriendPlayFinish = async (req, res, cb) => {
     }
 
     function lockKey(){
-        return `FFL:${req.session.user_id}`; // FFL: friend finish lock
+        return `FFL:${req.data.user_id}`; // FFL: friend finish lock
     }
 }
 

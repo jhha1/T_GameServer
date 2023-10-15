@@ -8,9 +8,9 @@ const log = require("../utils/logger");
 class MatchRandomService {
     constructor(req, myIp) {
         this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
-        this.season = req.session.season;
+        this.userId = req.data.userId;
+        this.shardId = req.data.shardId;
+        this.season = req.data.season;
         this.myIP = myIp;
         this.playerInfos = [];
         this.roomKey = '';

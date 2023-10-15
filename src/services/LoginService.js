@@ -11,8 +11,8 @@ class LoginService {
     #UserServiceObject;
     constructor(req) {
         this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
+        this.userId = req.data.userId;
+        this.shardId = req.data.shardId;
 
         this.#ItemServiceObject = new ItemService(req);
         this.#UserServiceObject = new UserService(req);

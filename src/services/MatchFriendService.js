@@ -12,8 +12,8 @@ const roomNameRegex = /^[a-zA-Z0-9]+$/;
 class MatchFriendService {
     constructor(req, roomName, myIp) {
         this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
+        this.userId = req.data.userId;
+        this.shardId = req.data.shardId;
         this.roomName = roomName;
         this.myIP = myIp;
         this.playerInfos = [];
