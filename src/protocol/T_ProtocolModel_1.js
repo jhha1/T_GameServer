@@ -9,13 +9,16 @@
 //------------------------------------------------------------------------------
 
 class User {
-  constructor() {
-     this.userId = ""
-     this.nickname = ""
-     this.isLeave = 0;
-     this.lastLoginDt = 0;
-     this.createdDt = 0;
-}};
+  constructor(user) {
+     this.user_id = user.user_id;
+     this.nickname = user.nickname;
+     this.nickname_change_cnt = user.nickname_change_cnt;
+     this.emote_id = user.emote_id;
+     this.is_leave = user.is_leave;
+     this.last_login_dt = user.last_login_dt;
+     this.create_dt = user.create_dt;
+  }
+};
 
 class ItemStackable {
   constructor() {

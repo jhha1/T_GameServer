@@ -7,6 +7,7 @@
 // the code is regenerated. 
 // </auto-generated> 
 //------------------------------------------------------------------------------
+const model = require("./T_ProtocolModel_1");
 
 class AccountLogin {
   constructor(account, isFirst) {
@@ -22,9 +23,9 @@ class AccountLogin {
 
 class UserLogin {
   constructor(user, itemStackable, stage) {
-     this.user = user;
+     this.user = new model.User(user);
      this.item_stackable = itemStackable;
-     //this.stage = stage;
+     this.stage = stage;
   }
 }
 
