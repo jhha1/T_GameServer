@@ -23,8 +23,8 @@ class AccountLogin {
 class UserLogin {
   constructor(user, itemStackable, stage) {
      this.user = user;
-     //this.item_stackable = itemStackable;
-     this.stage = stage;
+     this.item_stackable = itemStackable;
+     //this.stage = stage;
   }
 }
 
