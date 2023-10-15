@@ -202,25 +202,27 @@ class StageService {
                 rankList[userId] = {user_id:userId, rank:rank, score:score};
                 userIdList.push(userId);
             }
-        }
 
-        const placeholders = userIdList.map(() => '?').join(',');
-        let queries = [
-            ["User", Queries.User.selectByUserIdList(placeholders), userIdList]
-        ];
+            const placeholders = userIdList.map(() => '?').join(',');
+            let queries = [
+                ["User", Queries.User.selectByUserIdList(placeholders), userIdList]
+            ];
 
-        const userInfoList = await Promise.all(
-            ShardIdList.map((shardId) => db.select(shardId, queries)),
-        );
+            const userInfoList = await Promise.all(
+                ShardIdList.map((shardId) => db.select(shardId, queries)),
+            );
 
-        for (let shard of userInfoList) {
-            for (let info of shard['User']) {
-                rankList[info.user_id].nickname = info.nickname;
-                rankList[info.user_id].icon_id = info.emote_id;
+            for (let shard of userInfoList) {
+                for (let info of shard['User']) {
+                    rankList[info.user_id].nickname = info.nickname;
+                    rankList[info.user_id].icon_id = info.emote_id;
+                }
             }
+
+            return Object.values(rankList);
         }
 
-        return Object.values(rankList);
+        return [];
     }
 
     async getMyRankInfo(season) {
