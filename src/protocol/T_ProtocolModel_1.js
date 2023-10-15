@@ -12,18 +12,27 @@ class User {
   constructor(user) {
      this.user_id = user.user_id;
      this.nickname = user.nickname;
-     this.nickname_change_cnt = user.nickname_change_cnt;
-     this.emote_id = user.emote_id;
-     this.is_leave = user.is_leave;
-     this.last_login_dt = user.last_login_dt;
-     this.created_dt = user.created_dt;
+     this.nickname_change_cnt = Number(user.nickname_change_cnt);
+     this.emote_id = Number(user.emote_id);
+     this.is_leave = Number(user.is_leave);
+     this.last_login_dt = Number(user.last_login_dt);
+     this.created_dt = Number(user.created_dt);
   }
 };
 
 class ItemStackable {
   constructor(item) {
      this.item_id = item.item_id;
-     this.count = item.count;
+     this.count = Number(item.count);
+}};
+
+class Stage {
+  constructor(stage) {
+     this.user_id = stage.user_id;
+     this.season = Number(stage.season);
+     this.score = Number(stage.score);
+     this.win = Number(stage.win);
+     this.lose = Number(stage.lose);
 }};
 
 class Rank {
@@ -46,15 +55,6 @@ class PlayerInfo {
      this.win = 0;
      this.lose = 0;
      this.result = 0;
-}};
-
-class Stage {
-  constructor() {
-     this.userId = '';
-     this.season = '';
-     this.score = 0;
-     this.win = 0;
-     this.lose = 0;
 }};
 
 class Mail {

@@ -25,7 +25,7 @@ class UserLogin {
   constructor(user, itemStackable, stage) {
      this.user = new model.User(user);
      this.item_stackable = itemStackable.map((item)=> new model.ItemStackable(item));
-     this.stage = stage;
+     this.stage = new model.Stage(stage);
   }
 }
 
