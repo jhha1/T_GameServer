@@ -3,9 +3,7 @@ const UserService = require("../services/UserService");
 const session = require("../database/session");
 const msg = require("../protocol/T_ResProtocol_1");
 const { PlatformType } = require("../common/constValues");
-const cache = require("../database/cache");
 const log = require("../utils/logger");
-const ConstValues = require("../common/constValues");
 
 exports.AccountLogin = async (req, res, cb) => {
     const { platform_type, access_token, lang } = req.body;

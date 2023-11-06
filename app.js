@@ -6,7 +6,7 @@ const logger = require("./src/utils/logger");
 async function initializeAppServer() {
     if (cluster.isMaster) {
         // CPU 개수만큼 워커 프로세스 생성  numCPUs
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < numCPUs; i++) {
             cluster.fork();
         }
 

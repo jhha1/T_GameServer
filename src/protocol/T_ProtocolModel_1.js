@@ -35,26 +35,15 @@ class Stage {
      this.lose = Number(stage.lose);
 }};
 
-class Rank {
-    constructor() {
-        this.user_id = '';
-        this.rank = 0;
-        this.score = 0;
-        this.nickname = '';
-        this.icon_id = 0;
-    }
-};
-
 class PlayerInfo {
-  constructor() {
-     this.user_id = '';
-     this.ip = '';
-     this.nickname = '';
-     this.emote_id = 0;
-     this.rank = 0;
-     this.win = 0;
-     this.lose = 0;
-     this.result = 0;
+  constructor(info) {
+     this.user_id = info.user_id;
+     this.ip = info.ip;
+     this.nickname = info.nickname;
+     this.rank = Number(info.emote_id);
+     this.win = Number(info.is_leave);
+     this.lose = Number(info.last_login_dt);
+     this.result = Number(info.created_dt);
 }};
 
 class Mail {
