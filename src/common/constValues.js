@@ -4,8 +4,8 @@ const constValues = {
     },
 
     DBName: {
-        Auth: 'jhha_auth',
-        Game: 'jhha_game0'
+        Auth: 'auth',
+        Game: 'game0'
     },
 
     Session: {

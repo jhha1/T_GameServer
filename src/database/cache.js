@@ -69,8 +69,14 @@ async function isExpired(key) {
 }
 
 exports.connect = connect;
+exports.isExpired = isExpired;
+
 exports.getGame = () => {
     return RedisGameClient;
 };
-exports.isExpired = isExpired;
+
+exports.getMatch = () => {
+    return RedisGameClient;
+};
+
 
