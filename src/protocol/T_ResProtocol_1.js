@@ -31,19 +31,19 @@ class UserLogin {
 
 class UserChangeNicknameFree {
     constructor(user) {
-        this.user = user;
+        this.user = new model.User(user);
     }
 }
 
 class UserChangeNicknameBuy {
     constructor(user) {
-        this.user = user;
+        this.user = new model.User(user);
     }
 }
 
 class UserChangIconFree {
     constructor(user) {
-        this.user = user;
+        this.user = new model.User(user);
     }
 }
 
