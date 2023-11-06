@@ -20,10 +20,6 @@ class response {
     }
 
     send (msgObj) {
-        let msgArray = msgObj;
-        //let msgArray = [];
-        //this.make(msgObj, msgArray);
-
         log.info(this.#res.req, ` - [RES] {${JSON.stringify(msgObj)}}`);
 
         const encoded = msgpack.serialize(msgObj);
