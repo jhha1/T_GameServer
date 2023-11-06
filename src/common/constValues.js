@@ -14,13 +14,13 @@ const constValues = {
 
     Cache: {
         TTL: 1800, // 30분
+        LockTTL: 60, // 60 sec
         RefreshTTL: 10, // 10초
     },
 
     PlatformType: {
         Guest: 1,
-        Google: 2,
-        FaceBook: 3
+        Google: 2
     },
 
     DeviceType: {
@@ -47,29 +47,17 @@ const constValues = {
 
     Stage: {
         Type: {
-            Normal: 1,
+            Friend: 1,
+            Random: 2
         },
-        PlayLimitTime: 2000, // ms
-        StageStart: 1,
-        SubStageStart: 1,
-        SubStageMax: 5,
-        SubStageBoss: 5,
-        GoldBufferPercent: 10,
     },
 
-    Gacha: {
+    Rank: {
         Type: {
-            ItemEquip: 1,
-            ItemWeapon: 2,
-            ItemArmor: 3,
-            Item1: 4,
-            Item2: 5,
-            Item3: 6,
-            Skill: 7,
-            Pet: 8,
-            All: 9
-        }
-    }
+            Score: 1,
+            WinStreak: 2
+        },
+    },
 }
 
 module.exports = constValues;

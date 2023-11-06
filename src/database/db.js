@@ -71,6 +71,7 @@ async function execute(dbName, queries) {
             await conn.rollback();
         }
         let queryString = queries.map(q => `query {${q[0]}}, values {${q[1]}}`).join("\n");
+        log.error(`[DB_ERR] ${err.stack}`);
         log.error(`[DB_ERR_QUERY] ${queryString}`);
         throw err;
     } finally {
@@ -78,6 +79,14 @@ async function execute(dbName, queries) {
             conn.release();
         }
     }
+}
+
+function escape(value) {
+    if (typeof value === 'string') {
+        return mysql.escape(value);
+    }
+
+    return value;
 }
 
 async function insertWithReturnUID(dbName, query) {
@@ -110,7 +119,7 @@ function connect() {
 function _connectMysql() {
     try {
         _connectAuth();
-        _connectGame();
+        _connectGame();   
         
     } catch (err) {
         log.error(`${ENV} db 연결 안됨`, err);
@@ -119,6 +128,7 @@ function _connectMysql() {
 
     function _connectAuth(){
         let _config = Object.assign(CONFIG["rdb"]["list"]["auth"], CONFIG["rdb"]["options"]);
+        _config['namedPlaceholders'] = true;
         dbAuthConnectionPool[0] = mysql.createPool(_config);
         log.info(`Auth DB CONNECTED`);
     }
@@ -127,26 +137,28 @@ function _connectMysql() {
         const gameDBConfig = CONFIG["rdb"]["list"]["game"];
         const gameDBList = gameDBConfig["hostList"];
         for (let i = 0; i < gameDBList.length; i++) {
-            let _config = _.cloneDeep(gameDBConfig);
+            let _config = Object.assign(_.cloneDeep(gameDBConfig), CONFIG["rdb"]["options"]);
             _config.host = gameDBList[i];
             _config.database = `${_config.database}${i+1}`;
+            _config['namedPlaceholders'] = true;
             delete _config.hostList;
 
             dbGameConnectionPool[i+1] = mysql.createPool(_config);
-            log.info(`Game0${i+1} DB CONNECTED`);
+            log.info(`${_config.database} DB CONNECTED`);
         } 
     }
 }
 
-function getConnection(dbName) {
+async function getConnection(dbName) {
     if (dbName === ConstValues.DBName.Auth) {
-        return dbAuthConnectionPool[0].getConnection();
+        return await dbAuthConnectionPool[0].getConnection();
     } else if (!isNaN(dbName)) { // game
-        return dbGameConnectionPool[dbName].getConnection(); // dbName === shard number
+        return await dbGameConnectionPool[dbName].getConnection(); // dbName === shard number
     }
 }
 
 exports.connect = connect;
 exports.select = select;
 exports.execute = execute;
+exports.escape = escape;
 exports.insertWithReturnUID = insertWithReturnUID;

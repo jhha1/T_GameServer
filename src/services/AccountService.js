@@ -2,15 +2,19 @@ const db = require('../database/db');
 const moment = require("moment");
 const cluster = require("cluster");
 const os = require("os");
+const GoogleOAuth = require('../database/google/googleOAuth');
+const googleOAuthFirebase = require('../database/google/googleOAuthFirebase');
 const Queries = require('../queries/mapper');
+const util = require('../utils/util');
 const { PlatformType, DeviceType, DBName } = require('../common/constValues');
 const log = require("../utils/logger");
 
 class AccountService {
-    constructor(req, platformType, platformId) {
+    constructor(req, platformType, accessToken) {
         this.req = req;
         this.platformType = Number(platformType);
-        this.platformId = platformId;
+        this.accessToken = accessToken;
+        this.platformId = null;
     }
 
     get getPlatformType() {
@@ -21,9 +25,39 @@ class AccountService {
         return this.platformId;
     }
 
-    async getAccount() {
+    async authGoogle() {
+        try {
+            const userId = await GoogleOAuth.auth(this.accessToken);
+            return`g2${userId}`;
+        } catch (e) {
+            log.error(this.req, `액세스 토큰 검증 오류: ${e.message}`);
+            throw 107;
+        }
+    }
+
+    async authFirebase() {
+        try {
+            const userId = await googleOAuthFirebase.auth(this.accessToken);
+            return`g2${userId}`;
+        } catch (e) {
+            log.error(this.req, `액세스 토큰 검증 오류: ${e.message}`);
+            throw 107;
+        }
+    }
+    
+    getGuestPlatformId() {
+        return this.accessToken; // guest는 token에 고유id를 보낸다
+    }
+
+    createGuestId() {
+        let dt = moment.utc().format('x');
+        let rand = util.sysRangeRand(10, 99);
+        this.platformId = `g1${dt}${rand}`;
+    }
+
+    async getAccount(platformId) {
         let query = [
-            ["AccountRow", Queries.Account.select, [this.platformType, this.platformId]]
+            ["AccountRow", Queries.Account.select, [this.platformType, platformId]]
         ];
 
         let { AccountRow } = await db.select(DBName.Auth, query);
@@ -69,9 +103,28 @@ class AccountService {
         return minRow.shard_id;
     }
 
-    async createAccountAndUser(shardId, newAccountQuery, newUserQuery) {
+    async createAccount(platformId, lang){
+        switch (this.platformType) {
+            case PlatformType.Google:
+                break;
+            case PlatformType.Guest:
+                break;
+            default :
+                log.error(this.req, `UnSupportedPlatformType:${this.platformType}`);
+                throw 10001;
+        }
+
+        // 계정 생성 
+        let shardId = await this.getShardId();
+        let newUserId = this.#createNewUserId(shardId);
+        let newAccountQuery = [
+            [Queries.Account.insert, [this.platformType, platformId, newUserId, DeviceType.aos, shardId, lang]],
+            [Queries.ShardStatus.increaseUserCount, [shardId]]
+        ];
+
+        this.platformId = platformId; // todo
+
         await db.execute(DBName.Auth, newAccountQuery);
-        await db.execute(shardId, newUserQuery);
 
         // 계정 생성 확인
         let selectQuery = [
@@ -84,29 +137,15 @@ class AccountService {
             throw 10002;
         }
 
-        return NewAccountRow;
+        return { shardId, newUserId, NewAccountRow };
     }
 
-    async createAccountQuery(){
-        switch (this.platformType) {
-            case PlatformType.Google:
-            case PlatformType.FaceBook:
-                break;
-            case PlatformType.Guest:
-                // ... platformId가 디바이스넘버
-                break;
-            default :
-                log.error(this.req, `UnSupportedPlatformType:${this.platformType}`);
-                throw 10001;
-        }
-
-        let shardId = await this.getShardId();
-        let newUserId = this.#createNewUserId(shardId);
-        let newAccountQuery = [
-            [Queries.Account.insert, [this.platformType, this.platformId, newUserId, DeviceType.aos, shardId]],
-            [Queries.ShardStatus.increaseUserCount, [shardId]]
+    async rollbackAccount(platformId) {
+        let query = [
+            [Queries.Account.delete, [this.platformType, platformId]]
         ];
-        return { shardId, newUserId, newAccountQuery };
+
+        await db.execute(DBName.Auth, query);
     }
 
     #createNewUserId(dbShardId) {

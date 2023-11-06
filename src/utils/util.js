@@ -2,6 +2,8 @@ const _ = require("lodash");
 const moment = require("moment/moment");
 const ConstValues = require("../common/constValues");
 
+const INT_MAX = Math.pow(2, 32) - 1;
+
 const Random = {
     GachaGradeItemEquip: null, // 등급 선택
     GachaGradeItemWeapon: null,
@@ -14,6 +16,11 @@ const Random = {
     GachaItemSkill: null,
     GachaItemPet: null,
 };
+
+// min이상 ~ max이하 사이의 난수 생성
+function sysRangeRand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 function mergeDuplicatedItems(itemList) {
     // 중복아이템 합산
@@ -32,5 +39,7 @@ function mergeDuplicatedItems(itemList) {
     return merged;
 }
 
+module.exports.INT_MAX = INT_MAX;
 module.exports.Random = Random;
 module.exports.mergeDuplicatedItems = mergeDuplicatedItems;
+module.exports.sysRangeRand = sysRangeRand;

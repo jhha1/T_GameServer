@@ -9,16 +9,84 @@
 //------------------------------------------------------------------------------
 
 class AccountLogin {
-  constructor(platform_type, platform_id) {
-     this.platform_type = platform_type;
-     this.platform_id = platform_id;
+  constructor(body) {
+     this.platformType = body[0];
+     this.accessToken = body[1];
   }
 }
 
 class UserLogin {
 }
 
+class UserChangeNicknameFree {
+    constructor(nickname) {
+        this.nickname = nickname;
+    }
+}
+
+class UserChangeNicknameBuy {
+    constructor(nickname) {
+        this.nickname = nickname;
+    }
+}
+
+class UserChangIconFree {
+    constructor(icon) {
+        this.icon = icon;
+    }
+}
+
+class RoomInfo {
+    constructor(body) {
+        this.roomKey = body[0];
+    }
+}
+
+class RandomMatchPlayStart {
+    constructor(body) {
+        this.myIp = body[0];
+    }
+}
+
+class RandomMatchPlayFinish {
+    constructor(body) {
+        this.roomKey = body[0];
+        this.isWin = body[1];
+    }
+}
+
+
+class FriendPlayStart {
+  constructor(body) {
+    this.roomName = body[0];
+    this.myIp = body[1];
+ }
+}
+
+class FriendPlayFinish {
+  constructor(body) {
+    this.roomKey = body[0];
+    this.isWin = body[1];
+ }
+}
+
+class ForceRoomQuit {
+    constructor(body) {
+        this.roomKey = body[0];
+    }
+}
+
+class MailList {
+}
+
 module.exports = {
   AccountLogin,
   UserLogin,
+    RoomInfo,
+    RandomMatchPlayStart,
+    RandomMatchPlayFinish,
+  FriendPlayStart,
+  FriendPlayFinish,
+    ForceRoomQuit,
+  MailList,
 }

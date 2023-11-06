@@ -5,7 +5,7 @@ module.exports = {
 
     /* game */
     User: require("./user"),
-    ItemDouble: require("./itemDouble"),
+    Mail: require("./mail"),
     ItemEquip: require("./itemEquip"),
     ItemStackable: require("./itemStackable"),
     Equip: require("./equip"),

@@ -1,109 +1,220 @@
+const MatchFriendService = require('../services/MatchFriendService');
+const MatchRandomService = require('../services/MatchRandomService');
 const StageService = require('../services/StageService');
-const Response = require("../utils/response");
-const moment = require("moment/moment");
+const ItemService = require('../services/ItemService');
+const ConstValues = require('../common/constValues');
+const KeyValuesTable = require('../const/KeyValuesTable');
+const msg = require("../protocol/T_ResProtocol_1");
+const cache = require('../database/cache');
 const log = require("../utils/logger");
-const ConstTables = require("../const/mapper");
-const ConstValues = require("../common/constValues");
 
-exports.StageClear = async (req, res, cb) => {
+exports.RoomInfo = async (req, res, cb) => {
+    const { room_key } = req.body;
+
     try {
-        let obj = new StageClear(req, res);
-        
-        await obj.clear();
+        const service = new StageService(req);
 
-        return obj.result;
+        const roomInfo = await service.getRoomInfo(room_key) || [];
 
-    } catch (err) {
-        throw err;
+        return new msg.RoomInfo(room_key, roomInfo);
+
+    } catch (e) {
+        throw e;
     }
 }
 
-class StageClear {
-    constructor(req, res) {
-        this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
-        this.lastStageId = req.session.stageId;
-        this.lastGoldAmount = req.session.goldAmount;
-        this.lastStageClearDt = req.session.lastStageClearDt;
+exports.RankInfo = async (req, res, cb) => {
+    const { season, rank_type } = req.body;
 
-        this.clearStageId = Number(req.query.stageId);
-        this.clearGoldAmount = Number(req.query.goldAmount);
-        this.isRepeat = Number(req.query.isRepeat);
+    try {
+        const service = new StageService(req);
 
-        this.C_StageInfo = null;
-        this.clearSubStageId = 0;
-        this.newGoldAmount = 0;
-        this.now = moment.utc().format('x');
-        this.warningPoint = 0;
+        const rankInfo = await service.getTopRankList(season, rank_type) || [];
+        const myRankInfo = await service.getMyRankInfo(season) || {};
 
-        this.StageService = new StageService(req);
-        this.response = new Response(res);
+        return new msg.RankInfo(season, rankInfo, myRankInfo);
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+
+exports.RandomMatchPlayStart = async (req, res, cb) => {
+    const { my_ip } = req.body;
+
+    try {
+        const service = new MatchRandomService(req, my_ip);
+
+        await service.matching();
+
+        return new msg.RandomMatchPlayStart(service.uniqueRoomKey, service.playerList);
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+exports.RandomMatchPlayFinish = async (req, res, cb) => {
+    const { room_key, is_win } = req.body;
+
+    try {
+        const service = new StageService(req);
+
+        await lock(); // 동시성 제어를 위한 락
+
+        await service.finish(room_key, is_win);
+
+        await unlock();
+
+        return new msg.RandomMatchPlayFinish(service.stageInfo, service.itemStackableInfo, await service.rankInfo());
+
+    } catch (e) {
+        if (e !== 106) await unlock();
+        throw e;
     }
 
-    async clear() {
-        try {
-            this.#checkStageId();
-            this.#checkPlayTime();
-            this.#checkGold();
-
-            await this.StageService.updateClear(this.clearStageId, this.newGoldAmount, this.warningPoint);
-
-        } catch (err) {
-            throw err;
+    async function lock() {
+        let ret = await cache.getGame().setNX(lockKey(), '1'); // key, value
+        if (ret === 0) {
+            log.error(`RandomMatchPlayFinish.  (loocked)`);
+            throw 106;
         }
+        await cache.getGame().expire(lockKey(), ConstValues.Cache.LockTTL);
     }
 
-    #checkStageId() {
-        if (this.isRepeat) {
-            if (this.lastStageId !== this.clearStageId) {
-                log.error(this.req, `InvalidStageId. stage{last:${this.lastStageId},try:${this.clearStageId}}}`);
-                throw 999999; // 반복은 스테이지가 동일함
-            }
-        }
+    async function unlock() {
+        await cache.getGame().del(lockKey());
+    }
+
+    function lockKey(){
+        return `RFL:${req.data.user_id}`; // RFL : random finish lock
+    }
+}
+
+exports.FriendPlayStart = async (req, res, cb) => {
+    const { room_name, my_ip } = req.body;
+
+    try {
+        const service = new MatchFriendService(req, room_name, my_ip);
+
+        service.checkRoomName(); 
+
+        await lock(); // 동시성 제어를 위한 락
+
+        const roomKey = await service.getMatchInfo();
+        if (roomKey) {
+            await service.joinRoom(roomKey);
+        } 
         else {
-            if (this.lastStageId + 1 !== this.clearStageId) {
-                log.error(this.req, `InvalidStageId. tryStageId:${this.clearStageId}, lastStageId:${this.lastStageId}`);
-                throw 999999;
-            }
+            await service.createRoom();
         }
+
+        await unlock(); 
+
+        return new msg.FriendPlayStart(service.uniqueRoomKey, service.playerList);
+
+    } catch (e) {
+        // 방이름 체크 & 락 예외를 제외한 모든 예외는 락키를 푼다.
+        // 방이름 체크는 락키을 걸기전에 일어나고, 이상한 방이름이면 캐싱키에 쓰면 안된다.
+        if (e !== 100001 && e !== 100002 && e !== 100003) {
+            await unlock(); 
+        }
+        throw e;
     }
 
-    #checkPlayTime() {
-        this.C_StageInfo = ConstTables.Stage.get(this.clearStageId);
-        this.clearSubStageId = this.C_StageInfo.subStageId ?? 0;
-
-        if (this.clearSubStageId === ConstValues.Stage.SubStageStart) {
-            return; // 첫 스테이지는 체크하지 않는다.
+    async function lock() {
+        let a = lockKey();
+        let ret = await cache.getGame().setNX(lockKey(), '1'); // key, value
+        if (ret === 0) {
+            log.error(`FailedCreateFriendRoom. room is busy..(loocked)`);
+            throw 100003; // 룸 생성중 or 조인중
         }
-
-        if (this.now - this.lastStageClearDt < ConstValues.Stage.PlayLimitTime) { // 플레이시간 짧음
-            log.error(this.req, `Hack_PlayTime. clearDt:${this.lastStageClearDt - this.now}`);
-            this.warningPoint++;
-        }
+        await cache.getGame().expire(lockKey(), ConstValues.Cache.LockTTL);
     }
 
-    #checkGold() {
-        const goldAmount = (this.C_StageInfo)? this.C_StageInfo.goldAmount : 0;
-        const goldBuff_1 = this.req.session.goldBuff_1 || 1;
-        const goldBuff_2 = this.req.session.goldBuff_2 || 1;
+    async function unlock() {
+        await cache.getGame().del(lockKey());
+    }
 
-        // 0.01% 까지 커버가능
-        const getGold = Math.floor((goldAmount * 100) + (goldBuff_1 * 100) + (goldBuff_2 * 100) / 100);
-        const checkGold = getGold + Math.ceil(getGold / ConstValues.Stage.GoldBufferPercent);
-        if (this.clearGoldAmount > checkGold) {
-            log.error(this.req, `Hack_Gold. normalGold:${getGold}, tryGold:${this.clearGoldAmount}`);
-            this.warningPoint++;
+    function lockKey(){
+        return `FL:${room_name}`; // FL: friend lock
+    }
+}
+
+exports.FriendPlayFinish = async (req, res, cb) => {
+    const { room_key, is_win } = req.body;
+
+    try {
+        const service = new StageService(req);
+
+        await lock(); // 동시성 제어를 위한 락
+
+        await service.finish(room_key, is_win);
+
+        await unlock(); 
+
+        return new msg.FriendPlayFinish(service.stageInfo, service.itemStackableInfo, await service.rankInfo());
+
+    } catch (e) {
+        if (e !== 106) await unlock();
+        throw e;
+    }
+
+    async function lock() {
+        let ret = await cache.getGame().setNX(lockKey(), '1'); // key, value
+        if (ret === 0) {
+            log.error(`FailedFriendPlayFinish.  (loocked)`);
+            throw 106; 
+        }
+        await cache.getGame().expire(lockKey(), ConstValues.Cache.LockTTL);
+    }
+
+    async function unlock() {
+        await cache.getGame().del(lockKey());
+    }
+
+    function lockKey(){
+        return `FFL:${req.data.user_id}`; // FFL: friend finish lock
+    }
+}
+
+exports.UseItemForChangeShape = async (req, res, cb) => {
+    try {
+        const useItem = KeyValuesTable.get('ChangeShapeUseItem') || null;
+        if (!useItem) {
+            log.error(this.req, `FailedChangeShape. NoExist useItemInfo.`);
+            throw 104; // 기획데이터 이상
         }
 
-        this.newGoldAmount = this.lastGoldAmount + this.clearGoldAmount;
-    }
-    get result () {
-        this.response.primitives()
-            .set("stage_id", this.clearStageId)
-            .set("gold_amount", this.newGoldAmount)
-            .end();
+        const useItemId = useItem[0][0];
+        const useItemCount = useItem[0][1];
 
-        return this.response;
+        const service = new ItemService(req);
+
+        const haveItemResult = await service.itemUseOnly(useItemId, useItemCount, {decr:true});
+
+        return new msg.UseItemForChangeShape(haveItemResult);
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+exports.ForceRoomQuit = async (req, res, cb) => {
+    const { type, room_name } = req.body;
+    try {
+        if (type === ConstValues.Stage.Type.Friend) {
+            const service = new MatchFriendService(req, room_name, '');
+            await service.deleteMatch();
+        }
+        else if (type === ConstValues.Stage.Type.Random) {
+            const service = new MatchRandomService(req, '');
+            await service.deleteMeFromWaitingQueue();
+        }
+        return new msg.ForceRoomQuit();
+
+    } catch (e) {
+        throw e;
     }
 }

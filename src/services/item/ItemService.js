@@ -12,8 +12,8 @@ class ItemService {
 
     constructor(req) {
         this.#req = req;
-        this.#userId = req.session.userId;
-        this.#shardId = req.session.shardId;
+        this.#userId = req.data.userId;
+        this.#shardId = req.data.shardId;
         this.#itemStackableObject = new ItemStackable(req);
     }
 
@@ -23,7 +23,7 @@ class ItemService {
 
     async getAll() {
         let queries = [
-            ["ItemStackable", Queries.ItemStackable.select, [this.#userId]]
+            ["ItemStackable", Queries.ItemStackable.selectByUserId, [this.#userId]]
         ];
 
         let { ItemStackable } = await db.select(this.#shardId, queries);

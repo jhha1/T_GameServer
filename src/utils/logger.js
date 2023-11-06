@@ -77,6 +77,9 @@ if (!isProdunction) {
 }
 
 const log = {
+    debug (req, msg) {
+        appLogger.debug(this.make(req, msg));
+    },
     info (req, msg) {
         appLogger.info(this.make(req, msg));
     },

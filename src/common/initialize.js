@@ -26,6 +26,16 @@ function initializeConfig() {
         value: CONFIG,
         writable: false,
     });
+
+    let shardIdList = [];
+    const ShardConfig = CONFIG['rdb'].list.game.hostList;
+    for (let id = 0; id < ShardConfig.length; id++) {
+        shardIdList.push(id + 1);
+    }
+    Object.defineProperty(global, 'ShardIdList', {
+        value: shardIdList,
+        writable: false,
+    });
 }
 
 function loadConfig() {
@@ -158,7 +168,7 @@ async function doLogic(req, res, next, fn) {
 
         const result = await fn(req, res, next); // controller logic
 
-        postProcess.filter(req, res);
+        await postProcess.filter(req, res);
 
         return response.send(result);
     } catch (e) {

@@ -59,8 +59,8 @@ class Gacha {
 
     constructor(req, gachaId, gachaCount, isWatchedAd) {
         this.req = req;
-        this.userId = req.session.userId;
-        this.shardId = req.session.shardId;
+        this.userId = req.data.userId;
+        this.shardId = req.data.shardId;
         this.gachaId = Number(gachaId);
         this.gachaCount = Number(gachaCount);
         this.isWatchedAd = Number(isWatchedAd) || 0;

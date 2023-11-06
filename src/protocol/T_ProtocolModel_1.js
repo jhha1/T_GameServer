@@ -9,21 +9,72 @@
 //------------------------------------------------------------------------------
 
 class User {
-  constructor() {
-     this.user_id = ""
-     this.nickname = ""
-     this.is_leave = 0;
-     this.last_login_dt = 0;
-     this.created_dt = 0;
-}};
+  constructor(user) {
+     this.user_id = user.user_id;
+     this.nickname = user.nickname;
+     this.nickname_change_cnt = Number(user.nickname_change_cnt);
+     this.emote_id = Number(user.emote_id);
+     this.is_leave = Number(user.is_leave);
+     this.last_login_dt = Number(user.last_login_dt);
+     this.created_dt = Number(user.created_dt);
+  }
+};
 
 class ItemStackable {
+  constructor(item) {
+     this.item_id = item.item_id;
+     this.count = Number(item.count);
+}};
+
+class Stage {
+  constructor(stage) {
+     this.user_id = stage.user_id;
+     this.season = Number(stage.season);
+     this.score = Number(stage.score);
+     this.win = Number(stage.win);
+     this.lose = Number(stage.lose);
+}};
+
+class Rank {
+    constructor() {
+        this.user_id = '';
+        this.rank = 0;
+        this.score = 0;
+        this.nickname = '';
+        this.icon_id = 0;
+    }
+};
+
+class PlayerInfo {
   constructor() {
-     this.item_id = 0;
-     this.count = 0;
+     this.user_id = '';
+     this.ip = '';
+     this.nickname = '';
+     this.emote_id = 0;
+     this.rank = 0;
+     this.win = 0;
+     this.lose = 0;
+     this.result = 0;
+}};
+
+class Mail {
+  constructor() {
+     this.mail_id = 0;
+     this.user_id = '';
+     this.mail_type = 0;
+     this.subject = '';
+     this.text = '';
+     this.img_path = '';
+     this.reward_list = '';
+     this.received_dt = 0;
+     this.read_dt = 0;
+     this.rewarded_dt = 0;
 }};
 
 module.exports = {
   User,
   ItemStackable,
+  PlayerInfo,
+  Stage,
+  Mail,
 }
