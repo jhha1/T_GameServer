@@ -12,7 +12,6 @@ const cache = require('../database/cache');
 const Response = require('../utils/response');
 const ConstValues = require('./constValues');
 const util = require('../utils/util');
-const _TempTables = require('../const/_TempTables');
 
 function initializeConfig() {
     
@@ -61,14 +60,8 @@ function loadConfig() {
 }
 
 async function initializeConst() {
-
-    if (CONFIG["etc"]["is_work"]) {
-        // work 공간에서는 no data download.. 기획테이블 임시 셋팅
-        _TempTables.initTempTables();
-    } else {
-        // 구글 스프레드 기획데이터 download 
-        await loadConst();
-    }
+    // 구글 스프레드 기획데이터 download 
+    await loadConst();
 
     Object.defineProperty(global, 'CONST_TABLE', {
         value: global.CONST_TABLE,

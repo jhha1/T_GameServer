@@ -44,7 +44,6 @@ const initializeProcess = async() => {
         // session
         initializer.initializeSession(app);
 
-        // app.use(morgan('combined', { stream: httpLogger }));
         app.use((err, req, res, next) => {
             response.error(res, err);
         });
@@ -61,26 +60,3 @@ const initializeProcess = async() => {
 }
 
 exports.initializeProcess = initializeProcess;
-
-
-/*
-// 스레드들 간에 공유할 데이터
-const sharedData = [
-    CONFIG,
-    CONST_TABLE
-];
-
-// 스레드 생성
-const numWorkers = 1;
-const workers = [];
-for (let i = 0; i < numWorkers; i++) {
-workers.push(new Promise((resolve, reject) => {
-    const worker = new Worker('./src/bin/worker.js', { workerData: { threadIndex: i, sharedData } });
-    worker.once("message", (message) => { 
-        if (message === "initialized") { resolve(); }
-    });
-    worker.on("error", reject);
-}));
-}
-await Promise.all(workers); // 모든 작업자 스레드가 생성될 때까지 기다림    
-*/
